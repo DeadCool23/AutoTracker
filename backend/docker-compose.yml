@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.docker/redis_data:/data
+    networks:
+      - db
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+
+    environment:
+      POSTGRES_USER: nisu
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: auto_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker/postgres_data:/var/lib/postgresql/data
+    networks:
+      - db
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  db:
+    driver: bridge

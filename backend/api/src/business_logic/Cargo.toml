@@ -1,0 +1,11 @@
+[package]
+name = "business_logic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1.11.1"
+thiserror = "1.0"
+
+models = { path = "./../models" }
+data_access = { path = "./../data_access"}

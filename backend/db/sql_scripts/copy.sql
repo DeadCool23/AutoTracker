@@ -1,0 +1,1 @@
+COPY Camera FROM '/path/data/cameras.csv' DELIMITER ',' CSV HEADER;

@@ -1,0 +1,2 @@
+[workspace]
+members = [ "api", "data_access", "models", "business_logic", "dependencies_container"]

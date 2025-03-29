@@ -1,0 +1,13 @@
+[package]
+name = "data_access"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0"
+
+tokio = { version = "1", features = ["full"] }
+redis = { version = "0.29.1", features = ["tokio-comp"] }
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls"] }
+
+models = { path = "./../models" }

@@ -1,3 +1,4 @@
 *.tex linguist-detectable=false
 *.bib linguist-detectable=false
 *.eps linguist-detectable=false
+*.html linguist-detectable=false

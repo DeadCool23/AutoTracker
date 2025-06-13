@@ -1,0 +1,19 @@
+[package]
+name = "snap_insert_mes"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log = "0.4.27"
+lazy_static = "1.4.0"
+
+plotly = "0.9.1"
+
+tokio = { version = "1.0", features = ["full"] }
+rand = { version = "0.9", features = ["std_rng"] }
+
+cfg = { path = "./../cfg" }
+models = { path = "./../models" }
+logger = { path = "./../logger" }
+snaps_gen = { path = "./../snaps_gen" }
+data_access = { path = "./../data_access" }

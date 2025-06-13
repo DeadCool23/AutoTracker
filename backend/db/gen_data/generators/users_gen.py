@@ -14,8 +14,6 @@ def gen_rand_users(n: int) -> pd.DataFrame:
     def generate_random_email():
         username_options = [
             ''.join(random.choices(string.ascii_lowercase, k=random.randint(5, 10))),
-            fake.word() + random.choice(['', str(random.randint(1, 999))]),
-            '_'.join([fake.word() for _ in range(random.randint(2, 3))]),
             ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         ]
         

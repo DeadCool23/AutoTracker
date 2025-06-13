@@ -18,12 +18,13 @@ CAR_MODELS = {
         'Lexus': ['RX', 'NX', 'ES', 'LS', 'GX']
     }
 
-def gen_rand_cars(n: int) -> pd.DataFrame:
+def gen_rand_cars(n: int, owner_df: pd.DataFrame) -> pd.DataFrame:
     def generate_vin():
         chars = string.ascii_uppercase + string.digits
         return ''.join(random.choices(chars, k=17))
     
     data = {
+        'owner_id': [],
         'mark': [],
         'model': [],
         'vin': [],
@@ -32,12 +33,14 @@ def gen_rand_cars(n: int) -> pd.DataFrame:
     }
     
     for _ in range(n):
+        owner_id = random.choice(owner_df['id'])
         mark = random.choice(CAR_MARKS)
         model = random.choice(CAR_MODELS[mark])
         vin = generate_vin()
         mileage = random.randint(0, 300000)
         color = random.choice(COLORS)
         
+        data['owner_id'].append(owner_id)
         data['mark'].append(mark)
         data['model'].append(model)
         data['vin'].append(vin)

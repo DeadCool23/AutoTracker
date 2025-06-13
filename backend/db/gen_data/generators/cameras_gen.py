@@ -2,7 +2,7 @@ import random
 import pandas as pd
 from datetime import datetime, timedelta
 
-CAMS_DATA_FILE_PATH = './generators/help_data/cams_data.xlsx'
+CAMS_DATA_FILE_PATH = './gen_data/generators/help_data/cams_data.xlsx'
 
 def gen_rand_cameras(n: int) -> pd.DataFrame:
     def extract_random_cams_coords(n):

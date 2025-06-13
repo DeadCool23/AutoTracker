@@ -34,8 +34,8 @@ impl Validator {
     }
 
     pub fn is_valid_gos_num_mask(gos_num_mask: &String) -> bool {
-        let re =
-            Regex::new(r"^([АВЕКМНОРСТУХ*])(\d|\*){3}([АВЕКМНОРСТУХ*]{2})(\d{2,3}|\*{1})$").unwrap();
+        let re = Regex::new(r"^([АВЕКМНОРСТУХ*])(\d|\*){3}([АВЕКМНОРСТУХ*]{2})(\d{2,3}|\*{1})$")
+            .unwrap();
         re.is_match(gos_num_mask)
     }
 

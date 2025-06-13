@@ -88,3 +88,9 @@ fastlane/test_output
 __pycache__/
 *.py[cod]
 *$py.class
+
+# ============ Custom gitignore ============
+# ==========================================
+
+.DS_Store
+.docker

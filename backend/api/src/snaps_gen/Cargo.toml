@@ -1,0 +1,13 @@
+[package]
+name = "snaps_gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4"
+
+log = "0.4.27"
+rand = { version = "0.9", features = ["std_rng"] }
+
+data_access = { path = "./../data_access" }
+di_container = { path = "./../di_container" }

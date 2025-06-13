@@ -11,7 +11,7 @@ def gen_rand_car_snapshots(n: int, cameras_df: pd.DataFrame, sts_df: pd.DataFram
     cameras_df = cameras_df.copy()
     cameras_df['install_date'] = pd.to_datetime(cameras_df['install_date'])
     
-    camera_data = cameras_df[['id', 'install_date']].to_dict('records')
+    camera_data = cameras_df[['id', 'install_date', 'is_radar']].to_dict('records')
     gos_nums = sts_df['gos_num'].dropna().unique().tolist()
     
     if not gos_nums:
@@ -19,10 +19,10 @@ def gen_rand_car_snapshots(n: int, cameras_df: pd.DataFrame, sts_df: pd.DataFram
     
     data = {
         'camera_id': [],
-        'gos_num': [],
-        'road_line': [],
+        'snap_datetime': [],
         'speed': [],
-        'snap_datetime': []
+        'gos_num': [],
+        'road_line': []
     }
     
     end_date = datetime.now()
@@ -42,11 +42,24 @@ def gen_rand_car_snapshots(n: int, cameras_df: pd.DataFrame, sts_df: pd.DataFram
         
         road_line = random.randint(1, 5)
         speed = random.randint(20, 180)
-        
+
         data['camera_id'].append(camera_id)
         data['gos_num'].append(gos_num)
         data['road_line'].append(road_line)
-        data['speed'].append(speed)
-        data['date'].append(date.strftime('%Y-%m-%d %H:%M:%S'))
+        if camera['is_radar'] == True:
+            data['speed'].append(speed)
+        else:
+            data['speed'].append(None)
+        data['snap_datetime'].append(date.strftime('%Y-%m-%d %H:%M:%S'))
     
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+
+    int_cols = ['speed']
+    for col in int_cols:
+        if col in df.columns:
+            try:
+                df[col] = pd.to_numeric(df[col]).astype('Int64')
+            except (ValueError, TypeError):
+                continue
+    
+    return df

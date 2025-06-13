@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <div>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+        <div id="plotly-html-element" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+
+        <script type="module">
+            const graph_div = document.getElementById("plotly-html-element");
+            await Plotly.newPlot(graph_div, {"data":[{"type":"scatter","name":"BY VALUE","mode":"lines+markers","x":[5,10,15,20,25,30],"y":[8271675.0,15609233.4,22042933.4,29345618.9,36644691.8,44736558.2]},{"type":"scatter","name":"VALUES","mode":"lines+markers","x":[5,10,15,20,25,30],"y":[2795225.0,4458175.0,5805408.4,7598808.2,8896825.0,10702133.4]},{"type":"scatter","name":"COPY","mode":"lines+markers","x":[5,10,15,20,25,30],"y":[1140533.2,1238733.2,1213783.2,1242583.4,1333141.8,1485491.4]}],"layout":{"title":{"text":"Замеры времени"},"xaxis":{"title":{"text":"Кол-во вставляемых строк"}},"yaxis":{"title":{"text":"Время выполнения(нс)"}}},"config":{}});
+        </script>
+    </div>
+</body>
+
+</html>

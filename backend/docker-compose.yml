@@ -26,12 +26,34 @@ services:
       - "5432:5432"
     volumes:
       - ./.docker/postgres_data:/var/lib/postgresql/data
+      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/data:/data
+    networks:
+      - db
+  
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    restart: always
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9009:9009"
+    volumes:
+      - ./.docker/clickhouse_data:/var/lib/clickhouse
+      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/data:/data
+      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/sql_scripts/clickhouse:/scripts
+    environment:
+      - CLICKHOUSE_DB=auto_tracker
+      - CLICKHOUSE_USER=nisu
+      - CLICKHOUSE_PASSWORD=1234
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     networks:
       - db
 
 volumes:
   redis_data:
   postgres_data:
+  clickhouse_data:
 
 networks:
   db:

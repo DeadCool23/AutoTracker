@@ -21,10 +21,14 @@ pub enum ResponseStatusCode {
     INVALID_PSWD = 2002,
     INVALID_PSWDS = 2003,
     INVALID_PASSPORT = 2004,
+    PASSPORT_EXIST = 2005,
     INVALID_TIME = 2006,
 
     EMAIL_EXIST = 3001,
     EMAIL_NOT_FOUNDED = 3002,
+
+    CAMERA_NOT_FOUNDED = 4002,
+    AVG_SPEED_NOT_FOUNDED = 4003,
 
     UNKNOWN_ERROR = 9999,
 }
@@ -48,6 +52,7 @@ impl ResponseStatusCode {
     fn from_exist_data(err: &str) -> Self {
         match err {
             "email" => ResponseStatusCode::EMAIL_EXIST,
+            "passport" => ResponseStatusCode::PASSPORT_EXIST,
             _ => ResponseStatusCode::UNKNOWN_ERROR,
         }
     }
@@ -55,6 +60,8 @@ impl ResponseStatusCode {
     fn from_not_founded_data(err: &str) -> Self {
         match err {
             "email" => ResponseStatusCode::EMAIL_NOT_FOUNDED,
+            "camera" => ResponseStatusCode::CAMERA_NOT_FOUNDED,
+            "average speed" => ResponseStatusCode::AVG_SPEED_NOT_FOUNDED,
             _ => ResponseStatusCode::UNKNOWN_ERROR,
         }
     }
@@ -63,7 +70,9 @@ impl ResponseStatusCode {
         match err_type {
             ResponseStatusCodeType::INVALID_DATA => ResponseStatusCode::from_invalid_data(err),
             ResponseStatusCodeType::EXIST_DATA => ResponseStatusCode::from_exist_data(err),
-            ResponseStatusCodeType::NOT_FOUNDED_DATA => ResponseStatusCode::from_not_founded_data(err)
+            ResponseStatusCodeType::NOT_FOUNDED_DATA => {
+                ResponseStatusCode::from_not_founded_data(err)
+            }
         }
     }
 }

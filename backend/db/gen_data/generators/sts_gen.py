@@ -41,13 +41,13 @@ def gen_rand_sts(cars_df, owners_df):
         'mark': [],
         'model': [],
         'horse_power': [],
-        'weight': [],
+        'car_weight': [],
+        'sts_serial': [],
+        'sts_num': [],
         'engine_type': [],
         'car_class': [],
         'release_date': [],
-        'reg_date': [],
-        'serial': [],
-        'num': []
+        'reg_date': []
     }
     
     car_records = cars_df.to_dict('records')
@@ -86,19 +86,17 @@ def gen_rand_sts(cars_df, owners_df):
         data['mark'].append(car['mark'])
         data['model'].append(car['model'])
         data['horse_power'].append(horse_power)
-        data['weight'].append(weight)
+        data['car_weight'].append(weight)
         data['engine_type'].append(engine_type)
         data['car_class'].append(car_class)
         data['release_date'].append(release_date.strftime('%Y-%m-%d'))
         data['reg_date'].append(reg_date.strftime('%Y-%m-%d'))
-        data['serial'].append(serial)
-        data['num'].append(num)
+        data['sts_serial'].append(serial)
+        data['sts_num'].append(num)
     
     df = pd.DataFrame(data)
     
     int_cols = ['serial', 'num', 'horse_power', 'weight', 'car_id', 'owner_id']
-    for col in int_cols:
-        int_cols = ['serial', 'num', 'horse_power', 'weight', 'car_id', 'owner_id']
     for col in int_cols:
         if col in df.columns:
             try:

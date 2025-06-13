@@ -4,17 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.8.1"
-axum-test = "17.2.0"
+axum = { version = "0.8.3", features = ["macros"] }
 utoipa = { version = "5.3.1", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "9.0", features = ["axum"] }
 tokio = { version = "1.20", features = ["full"] }
 
-dotenv = "0.15.0"
 lazy_static = "1.4.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 
-models = { path = "./../models" }
-dependencies_container = { path = "./../dependencies_container" }
 chrono = { version = "0.4", features = ["serde"] }
+
+log = "0.4.27"
+
+cfg = { path = "./../cfg" }
+logger = { path = "./../logger"}
+models = { path = "./../models" }
+di_container = { path = "./../di_container" }

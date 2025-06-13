@@ -1,2 +1,3 @@
 [workspace]
-members = [ "api", "data_access", "models", "business_logic", "dependencies_container"]
+resolver = "2"
+members = [ "api", "data_access", "models", "business_logic", "di_container", "cfg", "snap_insertions", "logger", "snap_insert_mes", "snaps_gen"]

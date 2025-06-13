@@ -1,0 +1,16 @@
+[package]
+name = "snap_insertions"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = { version = "0.9", features = ["std_rng"] }
+
+log = "0.4.27"
+
+tokio = { version = "1.20", features = ["full", "signal"] }
+
+cfg = { path = "./../cfg" }
+logger = { path = "./../logger" }
+snaps_gen = { path = "./../snaps_gen" }
+di_container = { path = "./../di_container" }

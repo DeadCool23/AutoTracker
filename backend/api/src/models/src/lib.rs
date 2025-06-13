@@ -1,7 +1,7 @@
-use utoipa::ToSchema;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone)]
 pub struct Document {
     #[schema(example = "1111")]
     pub serial: String,
@@ -11,6 +11,7 @@ pub struct Document {
 
 #[derive(Serialize, Deserialize, Debug, ToSchema)]
 pub struct Car {
+    pub owner_fio: (String, String, Option<String>),
     pub gos_num: String,
     pub model: String,
     pub mark: String,
@@ -22,17 +23,15 @@ pub struct Car {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Serialize, Deserialize, Debug, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone)]
 pub enum Role {
     user,
     operator,
     audit,
 }
 
-#[derive(Serialize, Deserialize, Debug, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone)]
 pub struct User {
-    #[schema(example = 1)]
-    pub id: usize,
     #[schema(example = "Ivan")]
     pub name: String,
     #[schema(example = "Ivanov")]
@@ -41,8 +40,6 @@ pub struct User {
     pub lastname: Option<String>,
     #[schema(example = "email@example.ru")]
     pub email: String,
-    #[schema(example = "12345678")]
-    pub password: String,
     #[schema(example = "user")]
     pub role: Role,
     #[schema(example = true)]
@@ -52,8 +49,6 @@ pub struct User {
         "number": "111111"
     }))]
     pub passport: Option<Document>,
-    #[schema(example = json!([]))]
-    pub cars: Option<Vec<Car>>,
 }
 
 #[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize)]
@@ -64,10 +59,21 @@ pub struct Location {
     pub latitude: f64,
 }
 
-#[derive(Debug, ToSchema, Serialize, Deserialize)]
+#[derive(ToSchema, Deserialize, Serialize, Debug)]
+pub struct PointData {
+    #[schema(example = 60)]
+    pub speed: Option<u16>,
+    #[schema(example = json!([
+        { "longitude": 54.98989 , "latitude": 56.89882 }]
+    ))]
+    pub cords: Location,
+}
+
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone)]
 pub struct Snap {
     pub camera: Camera,
     pub time: String,
+    pub speed: Option<u16>,
     pub date: String,
     pub gos_num: String,
 }
@@ -76,6 +82,8 @@ pub struct Snap {
 pub struct Camera {
     #[schema(example = 1)]
     pub id: usize,
+    #[schema(example = true)]
+    pub is_radar: bool,
     #[schema(example = json!([
         { "longitude": 54.98989 , "latitude": 56.89882 }]
     ))]
@@ -84,7 +92,7 @@ pub struct Camera {
 
 #[derive(Debug, ToSchema, Serialize, Deserialize)]
 pub struct TrackInfo {
-    pub date: String,
+    pub track_time: String,
     pub route_date: String,
     pub car: Car,
     pub user: User,

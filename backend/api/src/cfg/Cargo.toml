@@ -7,4 +7,4 @@ edition = "2024"
 log = "0.4.27"
 dotenv = "0.15.0"
 lazy_static = "1.4.0"
-config = { version = "0.13", features = ["ini"] }
+config = { version = "0.15", features = ["ini"] }

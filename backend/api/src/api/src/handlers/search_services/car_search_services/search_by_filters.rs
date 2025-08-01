@@ -1,5 +1,5 @@
 use super::CarSearcherResponse;
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
 use crate::paths::TRACK_INFO_SEARCH_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
@@ -41,8 +41,8 @@ pub async fn handle_search_cars_by_filters(
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("searcher").await {
-        Some(BLServices::SearchService(s)) => s,
+    let service = match ServicesContainer::get("searcher").await {
+        Some(CoreServices::SearchService(s)) => s,
         _ => {
             log::warn!("Can't get SearchService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

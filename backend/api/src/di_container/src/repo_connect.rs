@@ -85,7 +85,7 @@ impl AvailableDB {
     }
 }
 
-pub enum DARepos {
+pub enum Repositories {
     UserRepo(Box<dyn UserRepository>),
     SnapRepo(Box<dyn SnapRepository>),
     CameraRepo(Box<dyn CameraRepository>),
@@ -93,11 +93,10 @@ pub enum DARepos {
     TrackInfoRepo(Box<dyn TrackInfoRepository>),
 }
 
-#[allow(non_camel_case_types)]
-pub struct DATA_ACCESSES;
+pub struct DataContainer;
 
-impl DATA_ACCESSES {
-    pub async fn get(name: &str) -> Option<DARepos> {
+impl DataContainer {
+    pub async fn get(name: &str) -> Option<Repositories> {
         let db = AvailableDB::from_str(cfg::var("vars.main_db"))
             .expect("Incorrect DB var. Avalible DB: postgres, clickhouse");
 
@@ -135,14 +134,14 @@ impl DATA_ACCESSES {
                         "
                         );
 
-                        DARepos::SnapRepo(Box::new(tandem_snap_repo))
+                        Repositories::SnapRepo(Box::new(tandem_snap_repo))
                     }
                     AvailableDB::ClickHouse => {
                         select_repository!(
                             AvailableDB::ClickHouse,
                             PgSnapRepo,
                             ClickHouseSnapRepo,
-                            DARepos::SnapRepo
+                            Repositories::SnapRepo
                         )
                     }
                 };
@@ -151,20 +150,20 @@ impl DATA_ACCESSES {
                 Some(snap_repo)
             }
             "user_repo" => {
-                let res = select_repository!(db, PgUserRepo, ClickHouseUserRepo, DARepos::UserRepo);
+                let res = select_repository!(db, PgUserRepo, ClickHouseUserRepo, Repositories::UserRepo);
 
                 log::info!("Sending UserRepository");
                 Some(res)
             }
             "camera_repo" => {
                 let res =
-                    select_repository!(db, PgCameraRepo, ClickHouseCameraRepo, DARepos::CameraRepo);
+                    select_repository!(db, PgCameraRepo, ClickHouseCameraRepo, Repositories::CameraRepo);
 
                 log::info!("Sending CameraRepository");
                 Some(res)
             }
             "car_repo" => {
-                let res = select_repository!(db, PgCarRepo, ClickHouseCarRepo, DARepos::CarRepo);
+                let res = select_repository!(db, PgCarRepo, ClickHouseCarRepo, Repositories::CarRepo);
 
                 log::info!("Sending CarRepository");
                 Some(res)
@@ -174,7 +173,7 @@ impl DATA_ACCESSES {
                     db,
                     PgTrackInfoRepo,
                     ClickHouseTrackInfoRepo,
-                    DARepos::TrackInfoRepo
+                    Repositories::TrackInfoRepo
                 );
 
                 log::info!("Sending TrackInfoRepository");

@@ -1,4 +1,4 @@
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use crate::paths::ROUTE_GET_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::PointData;
@@ -43,8 +43,8 @@ pub async fn handle_route(
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("route_getter").await {
-        Some(BLServices::RouteGetService(s)) => s,
+    let service = match ServicesContainer::get("route_getter").await {
+        Some(CoreServices::RouteGetService(s)) => s,
         _ => {
             log::warn!("Can't get RouteGetService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

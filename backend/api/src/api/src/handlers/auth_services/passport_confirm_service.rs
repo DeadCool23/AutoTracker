@@ -1,4 +1,4 @@
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use crate::paths::PASSPORT_CONF_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::Document;
@@ -33,8 +33,8 @@ pub async fn handle_passport_conf(
     let mut status = StatusResponse::new();
     println!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("auther").await {
-        Some(BLServices::AuthService(s)) => s,
+    let service = match ServicesContainer::get("auther").await {
+        Some(CoreServices::AuthService(s)) => s,
         _ => {
             log::warn!("Can't get AuthService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

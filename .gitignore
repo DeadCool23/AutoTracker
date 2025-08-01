@@ -94,3 +94,5 @@ __pycache__/
 
 .DS_Store
 .docker
+logs
+*.log

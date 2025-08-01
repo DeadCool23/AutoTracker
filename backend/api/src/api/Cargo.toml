@@ -7,7 +7,7 @@ edition = "2021"
 axum = { version = "0.8.3", features = ["macros"] }
 utoipa = { version = "5.3.1", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "9.0", features = ["axum"] }
-tokio = { version = "1.20", features = ["full"] }
+tokio = { version = "1.47", features = ["full"] }
 
 lazy_static = "1.4.0"
 serde = { version = "1.0.219", features = ["derive"] }

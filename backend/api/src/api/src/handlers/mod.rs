@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 use models::Location;
 
 pub use di_container::error::ServiceError;
-pub use di_container::{BLServices, BUSINESS_SERVICES};
+pub use di_container::{CoreServices, ServicesContainer};
 
 use auth_services::{
     auth_service::__path_handle_auth, passport_confirm_service::__path_handle_passport_conf,

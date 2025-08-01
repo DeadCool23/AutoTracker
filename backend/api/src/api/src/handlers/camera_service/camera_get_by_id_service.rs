@@ -1,5 +1,5 @@
 use super::camera_response::CameraResponse;
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
 use crate::paths::CAMERA_GET_BY_ID_SERVICE_PATH as PATH;
 use axum::{
@@ -36,8 +36,8 @@ pub async fn handle_get_camera_by_id(Path(id): Path<i64>) -> Result<Response, St
         id
     );
 
-    let service = match BUSINESS_SERVICES::get("camera_data_getter").await {
-        Some(BLServices::CameraDataGetService(s)) => s,
+    let service = match ServicesContainer::get("camera_data_getter").await {
+        Some(CoreServices::CameraDataGetService(s)) => s,
         _ => {
             log::warn!("Can't get CameraDataGetService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

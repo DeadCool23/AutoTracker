@@ -1,4 +1,4 @@
-use super::{BLServices, BUSINESS_SERVICES};
+use super::{CoreServices, ServicesContainer};
 use super::{SearchByFIORequest, TrackInfoSearcherResponse};
 use crate::paths::TRACK_INFO_SEARCH_BY_FIO_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
@@ -23,8 +23,8 @@ pub async fn handle_search_track_info_by_fio(
     let status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("searcher").await {
-        Some(BLServices::SearchService(s)) => s,
+    let service = match ServicesContainer::get("searcher").await {
+        Some(CoreServices::SearchService(s)) => s,
         _ => {
             log::warn!("Can't get SearchService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

@@ -2,7 +2,7 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 use snaps_gen::gen_snap;
 
-use di_container::{DARepos, DATA_ACCESSES};
+use di_container::{Repositories, DataContainer};
 
 const THREADS_CNT: usize = 20;
 const DURATION_TIME: u64 = 2;
@@ -21,8 +21,8 @@ async fn main() {
     let mut handles = vec![];
 
     for _ in 0..THREADS_CNT {
-        let snap_repo = match DATA_ACCESSES::get("snap_repo").await {
-            Some(DARepos::SnapRepo(repo)) => repo,
+        let snap_repo = match DataContainer::get("snap_repo").await {
+            Some(Repositories::SnapRepo(repo)) => repo,
             _ => panic!("Can't get snap repository"),
         };
 

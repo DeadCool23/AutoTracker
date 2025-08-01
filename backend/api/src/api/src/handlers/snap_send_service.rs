@@ -1,5 +1,5 @@
 use super::ResponseWithoutData;
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use crate::paths::SNAP_SEND_SERVICE_PATH as PATH;
 use axum::{
     extract::Json as ExtractJson,
@@ -53,8 +53,8 @@ pub async fn handle_snap_send(
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("snap_sender").await {
-        Some(BLServices::SnapSendService(s)) => s,
+    let service = match ServicesContainer::get("snap_sender").await {
+        Some(CoreServices::SnapSendService(s)) => s,
         _ => {
             log::warn!("Can't get SnapSendService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

@@ -3,7 +3,7 @@ use data_access::{
     models::{Camera, Snap},
     repositories_traits::{CameraRepository, CarRepository},
 };
-use di_container::{DARepos, DATA_ACCESSES};
+use di_container::{Repositories, DataContainer};
 use rand::{Rng, seq::IndexedRandom};
 
 const MAX_SPEED: u16 = 120;
@@ -43,13 +43,13 @@ async fn get_rand_gos_num_from_db<Rand: Rng>(
 }
 
 pub async fn gen_snap<Rand: Rng>(rng: &mut Rand) -> Option<Snap> {
-    let car_repo = match DATA_ACCESSES::get("car_repo").await {
-        Some(DARepos::CarRepo(repo)) => repo,
+    let car_repo = match DataContainer::get("car_repo").await {
+        Some(Repositories::CarRepo(repo)) => repo,
         _ => return None,
     };
 
-    let camera_repo = match DATA_ACCESSES::get("camera_repo").await {
-        Some(DARepos::CameraRepo(repo)) => repo,
+    let camera_repo = match DataContainer::get("camera_repo").await {
+        Some(Repositories::CameraRepo(repo)) => repo,
         _ => return None,
     };
 

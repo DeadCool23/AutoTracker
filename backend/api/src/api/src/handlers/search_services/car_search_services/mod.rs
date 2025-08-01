@@ -1,6 +1,6 @@
 use super::search_requests::{SearchByFIORequest, SearchByGosNumRequest, SearchByPassportRequest};
 use super::StatusResponse;
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
 use models::Car;
 use serde::{Deserialize, Serialize};

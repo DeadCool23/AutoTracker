@@ -1,4 +1,4 @@
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
 use crate::paths::GET_AVG_SPEED_ON_CAMERA_PATH as PATH;
 use axum::{
@@ -52,8 +52,8 @@ pub async fn handle_get_avg_speed_for_car_on_camera(
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("camera_data_getter").await {
-        Some(BLServices::CameraDataGetService(s)) => s,
+    let service = match ServicesContainer::get("camera_data_getter").await {
+        Some(CoreServices::CameraDataGetService(s)) => s,
         _ => {
             log::warn!("Can't get CameraDataGetService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

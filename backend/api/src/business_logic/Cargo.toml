@@ -7,7 +7,7 @@ edition = "2021"
 regex = "1.11.1"
 thiserror = "2.0"
 async-trait = "0.1"
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.47.1", features = ["full"] }
 
 log = "0.4.27"
 

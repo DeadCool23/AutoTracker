@@ -1,4 +1,4 @@
-use super::{BLServices, ServiceError, BUSINESS_SERVICES};
+use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{CarSearcherResponse, SearchByGosNumRequest};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
 
@@ -26,8 +26,8 @@ pub async fn handle_search_car_by_gos_num_mask(
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
-    let service = match BUSINESS_SERVICES::get("searcher").await {
-        Some(BLServices::SearchService(s)) => s,
+    let service = match ServicesContainer::get("searcher").await {
+        Some(CoreServices::SearchService(s)) => s,
         _ => {
             log::warn!("Can't get SearchService");
             return Err(StatusCode::INTERNAL_SERVER_ERROR);

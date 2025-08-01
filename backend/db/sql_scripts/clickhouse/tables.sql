@@ -1,4 +1,3 @@
--- Active: 1747382442971@@127.0.0.1@8123@auto_tracker
 CREATE TABLE AppUser (
     id UInt32,
     login String,

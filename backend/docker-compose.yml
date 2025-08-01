@@ -19,14 +19,14 @@ services:
     restart: always
 
     environment:
-      POSTGRES_USER: nisu
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: auto_tracker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - ./.docker/postgres_data:/var/lib/postgresql/data
-      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/data:/data
+      - ${PROJECT_ROOT}/db/data:/data
     networks:
       - db
   
@@ -40,12 +40,12 @@ services:
       - "9009:9009"
     volumes:
       - ./.docker/clickhouse_data:/var/lib/clickhouse
-      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/data:/data
-      - /Users/nisu/Nisu/BMSTU/ppo/backend/db/sql_scripts/clickhouse:/scripts
+      - ${PROJECT_ROOT}/db/data:/data
+      - ${PROJECT_ROOT}/db/sql_scripts/clickhouse:/scripts
     environment:
-      - CLICKHOUSE_DB=auto_tracker
-      - CLICKHOUSE_USER=nisu
-      - CLICKHOUSE_PASSWORD=1234
+      - CLICKHOUSE_DB=${CLICKHOUSE_DB}
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     networks:
       - db

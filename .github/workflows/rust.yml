@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup environment
-      working-directory: /AutoTracker/backend
+      working-directory: ./backend
       run: |
         # Копируем шаблон
         cp .env.example .env

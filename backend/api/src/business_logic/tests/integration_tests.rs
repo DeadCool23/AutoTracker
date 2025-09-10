@@ -9,8 +9,8 @@ async fn test_psql_auth_success() {
 
     let res = service
         .auth(
-            &"nisuev04@mail.ru".to_string(),
-            &"12345678".to_string(),
+            &"uewmleii@icloud.com".to_string(),
+            &"Krd!G0RW&".to_string(),
         )
         .await;
 

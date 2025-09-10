@@ -44,6 +44,10 @@ impl repositories_traits::UserRepository for MockUserRepo {
         }
     }
     async fn insert_user(&self, user: &User, pswd: &str) -> Result<(), DataAccessError> {
+        if user.email == "exist@exist.com" {
+            return Err(DataAccessError::InvalidInput("Exist".to_string()));
+        }
+        
         Ok(())
     }
     async fn update_user_passport(

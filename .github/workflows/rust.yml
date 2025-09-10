@@ -69,13 +69,16 @@ jobs:
         CLICKHOUSE_PASSWORD=$(grep '^CLICKHOUSE_PASSWORD=' ../../../.env | cut -d '=' -f2)
         CLICKHOUSE_DB=$(grep '^CLICKHOUSE_DB=' ../../../.env | cut -d '=' -f2)
         
-        echo "CLICKHOUSE_USER: $CLICKHOUSE_USER"
-        echo "CLICKHOUSE_DB: $CLICKHOUSE_DB"
-        
+        ls -la
         if [ -f "tables.sql" ]; then
           echo "Executing tables.sql for ClickHouse"
-          cat tables.sql | docker exec -i clickhouse clickhouse-client -u "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB" --multiquery
+          # Используем host 'clickhouse' (имя контейнера) вместо localhost
+          cat tables.sql | docker exec -i clickhouse clickhouse-client \
+            -h clickhouse \
+            -u "$CLICKHOUSE_USER" \
+            --password "$CLICKHOUSE_PASSWORD" \
+            --database "$CLICKHOUSE_DB" \
+            --multiquery
         else
           echo "Warning: tables.sql not found for ClickHouse"
         fi
-        ls -la

@@ -1,4 +1,4 @@
-name: Rust CI/CD
+name: Rust
 
 on:
   push:
@@ -10,34 +10,13 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      postgres_user: ${{ steps.set-env.outputs.postgres_user }}
-      postgres_db: ${{ steps.set-env.outputs.postgres_db }}
-      clickhouse_user: ${{ steps.set-env.outputs.clickhouse_user }}
-      clickhouse_db: ${{ steps.set-env.outputs.clickhouse_db }}
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
-    
-    - name: Load environment variables
-      id: set-env
-      working-directory: ./backend
-      run: |
-        echo "postgres_user=$(grep '^POSTGRES_USER=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
-        echo "postgres_db=$(grep '^POSTGRES_DB=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
-        echo "clickhouse_user=$(grep '^CLICKHOUSE_USER=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
-        echo "clickhouse_db=$(grep '^CLICKHOUSE_DB=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
+  build:
 
-  infrastructure:
     runs-on: ubuntu-latest
-    needs: setup
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
     
@@ -45,82 +24,90 @@ jobs:
       working-directory: ./backend
       run: |
         sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE/backend|g" .env
+        cat .env
     
     - name: Start Docker containers
       working-directory: ./backend
-      run: docker compose up -d
+      run: |
+        docker compose up -d
 
-  postgres-setup:
-    runs-on: ubuntu-latest
-    needs: infrastructure
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Wait for PostgreSQL
+    - name: Wait for PostgreSQL to be ready
       run: |
         for i in {1..30}; do
-          if docker exec postgres pg_isready -U ${{ needs.setup.outputs.postgres_user }} -d ${{ needs.setup.outputs.postgres_db }}; then
+          if docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; then
             echo "PostgreSQL is ready!"
             break
           fi
+          echo "Waiting for PostgreSQL... attempt $i"
           sleep 2
         done
-    
-    - name: Prepare PostgreSQL data
+        docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+
+    - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
+        POSTGRES_USER=$(grep '^POSTGRES_USER=' ../../../.env | cut -d '=' -f2)
+        POSTGRES_PASSWORD=$(grep '^POSTGRES_PASSWORD=' ../../../.env | cut -d '=' -f2)
+        POSTGRES_DB=$(grep '^POSTGRES_DB=' ../../../.env | cut -d '=' -f2)
+        
+        echo "POSTGRES_USER: $POSTGRES_USER"
+        echo "POSTGRES_DB: $POSTGRES_DB"
+        
         for script in tables.sql constraints.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-            docker exec -i postgres psql -h localhost -p 5432 -U ${{ needs.setup.outputs.postgres_user }} -d ${{ needs.setup.outputs.postgres_db }} < "$script"
+            docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+          else
+            echo "Warning: $script not found"
           fi
         done
-
-  clickhouse-setup:
-    runs-on: ubuntu-latest
-    needs: infrastructure
-    steps:
-    - uses: actions/checkout@v4
     
-    - name: Wait for ClickHouse
+    - name: Wait for ClickHouse to be ready
       run: |
-        timeout 120s bash -c '
-          until curl -s http://localhost:8123/ping >/dev/null; do
-            sleep 2
-            echo "Waiting for ClickHouse..."
+        echo "Waiting for ClickHouse to be ready..."
+        timeout 180s bash -c '
+          while ! curl -s http://localhost:8123/ping >/dev/null; do
+            sleep 3
+            echo "ClickHouse is not ready yet..."
           done
         '
-    
-    - name: Prepare ClickHouse data
+        echo "ClickHouse HTTP interface is ready!"
+        
+        timeout 120s bash -c '
+          while ! docker exec clickhouse clickhouse-client -h localhost --query "SELECT 1" 2>/dev/null; do
+            sleep 2
+            echo "Waiting for ClickHouse native interface..."
+          done
+        '
+        echo "ClickHouse native interface is ready!"
+
+    - name: ClickHouse data preparing
       working-directory: ./backend/db/sql_scripts/clickhouse
       run: |
+        CLICKHOUSE_USER=$(grep '^CLICKHOUSE_USER=' ../../../.env | cut -d '=' -f2)
+        CLICKHOUSE_PASSWORD=$(grep '^CLICKHOUSE_PASSWORD=' ../../../.env | cut -d '=' -f2)
+        CLICKHOUSE_DB=$(grep '^CLICKHOUSE_DB=' ../../../.env | cut -d '=' -f2)
+        
         if [ -f "tables.sql" ]; then
+          echo "Executing tables.sql for ClickHouse"
+          # Используем host 'clickhouse' (имя контейнера) вместо localhost
           cat tables.sql | docker exec -i clickhouse clickhouse-client \
             -h localhost \
-            -u ${{ needs.setup.outputs.clickhouse_user }} \
-            --password "$(grep '^CLICKHOUSE_PASSWORD=' ../../../docker/.env | cut -d '=' -f2)" \
-            --database ${{ needs.setup.outputs.clickhouse_db }} \
+            -u "$CLICKHOUSE_USER" \
+            --password "$CLICKHOUSE_PASSWORD" \
+            --database "$CLICKHOUSE_DB" \
             --multiquery
+        else
+          echo "Warning: tables.sql not found for ClickHouse"
         fi
         
         docker exec clickhouse chmod +x /scripts/copy.sh
         docker exec clickhouse /scripts/copy.sh
 
-  build-and-test:
-    runs-on: ubuntu-latest
-    needs: [postgres-setup, clickhouse-setup]
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Build Rust project
+    - name: Rust building
       working-directory: ./backend/api/src
       run: cargo build
-    
-    - name: Run Rust tests
+
+    - name: Rust testing
       working-directory: ./backend/api/src
       run: cargo test --show-output
-    
-    - name: Stop containers
-      if: always()
-      working-directory: ./backend
-      run: docker compose down

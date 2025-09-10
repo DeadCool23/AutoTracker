@@ -61,6 +61,7 @@ jobs:
             echo "Warning: $script not found"
           fi
         done
+    
     - name: Wait for ClickHouse to be ready
       run: |
         echo "Waiting for ClickHouse to be ready..."
@@ -80,7 +81,7 @@ jobs:
         '
         echo "ClickHouse native interface is ready!"
 
-    - name: ClickHouse data preparin
+    - name: ClickHouse data preparing
       working-directory: ./backend/db/sql_scripts/clickhouse
       run: |
         CLICKHOUSE_USER=$(grep '^CLICKHOUSE_USER=' ../../../.env | cut -d '=' -f2)
@@ -102,3 +103,7 @@ jobs:
         
         docker exec clickhouse chmod +x /scripts/copy.sh
         docker exec clickhouse /scripts/copy.sh
+
+    - name: Rust building
+      working-directory: ./backend/api/src
+      run: cargo build --verbose

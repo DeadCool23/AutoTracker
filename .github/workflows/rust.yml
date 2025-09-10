@@ -17,4 +17,5 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: List files
+      working-directory: ./backend
       run: ls -la

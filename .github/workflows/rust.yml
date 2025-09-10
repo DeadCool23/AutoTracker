@@ -1,0 +1,26 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup environment
+      working-directory: ./docker
+      run: |
+        # Копируем шаблон
+        cp .env.example .env
+        # Заменяем PROJECT_ROOT
+        sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE|g" .env
+        cat .env

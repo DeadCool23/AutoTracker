@@ -61,6 +61,24 @@ jobs:
             echo "Warning: $script not found"
           fi
         done
+    - name: Wait for ClickHouse to be ready
+      run: |
+        echo "Waiting for ClickHouse to be ready..."
+        timeout 180s bash -c '
+          while ! curl -s http://localhost:8123/ping >/dev/null; do
+            sleep 3
+            echo "ClickHouse is not ready yet..."
+          done
+        '
+        echo "ClickHouse HTTP interface is ready!"
+        
+        timeout 120s bash -c '
+          while ! docker exec clickhouse clickhouse-client -h localhost --query "SELECT 1" 2>/dev/null; do
+            sleep 2
+            echo "Waiting for ClickHouse native interface..."
+          done
+        '
+        echo "ClickHouse native interface is ready!"
 
     - name: ClickHouse data preparin
       working-directory: ./backend/db/sql_scripts/clickhouse
@@ -74,7 +92,7 @@ jobs:
           echo "Executing tables.sql for ClickHouse"
           # Используем host 'clickhouse' (имя контейнера) вместо localhost
           cat tables.sql | docker exec -i clickhouse clickhouse-client \
-            -h clickhouse \
+            -h localhost \
             -u "$CLICKHOUSE_USER" \
             --password "$CLICKHOUSE_PASSWORD" \
             --database "$CLICKHOUSE_DB" \

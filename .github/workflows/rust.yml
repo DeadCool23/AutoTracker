@@ -19,7 +19,6 @@ jobs:
     - name: List files
       working-directory: ./backend
       run: |
-        cd ./main/backend
         cp .env.example .env
         sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE|g" .env
         cat .env

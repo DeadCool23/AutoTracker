@@ -6,6 +6,8 @@ pub enum DataAccessError {
     InvalidInput(String),
     #[error("Not founded: {0}")]
     NotFoundError(String),
+    #[error("Connection failed: {0}")]
+    ConnectionError(String),
     #[error(transparent)]
     PsqlDataBaseError(#[from] sqlx::Error),
     #[error(transparent)]

@@ -1,22 +1,15 @@
 use business_logic::services::snap_send_service::SnapSendService;
 use business_logic::services_traits::SnapSender;
-use data_access::repositories::mocked::MockSnapRepo;
-use models::{Camera, Location};
+use data_access::repositories::{mocked::MockSnapRepo, minimal::InMemorySnapRepository};
+use models::{Camera, Location, objmother::{CameraMother, LocationMother}};
 
 #[tokio::test]
 async fn test_handle_snap_send_success() {
-    let service = SnapSendService::from(Box::new(MockSnapRepo));
+    let service = SnapSendService::from(Box::new(InMemorySnapRepository::new()));
 
     let res = service
         .insert_snap(
-            &Camera {
-                id: 1,
-                is_radar: true,
-                location: Location {
-                    longitude: 53.9333,
-                    latitude: 53.9333,
-                },
-            },
+            &CameraMother::radar_camera(),
             Some(70),
             &"8:10".to_string(),
             &"01.01.2025".to_string(),
@@ -33,14 +26,7 @@ async fn test_handle_snap_send_invalid_gos_num() {
 
     let res = service
         .insert_snap(
-            &Camera {
-                id: 1,
-                is_radar: true,
-                location: Location {
-                    longitude: 53.9333,
-                    latitude: 53.9333,
-                },
-            },
+            &CameraMother::regular_camera(),
             Some(70),
             &"8:10".to_string(),
             &"01.01.2025".to_string(),
@@ -61,10 +47,7 @@ async fn test_handle_snap_send_invalid_date() {
             &Camera {
                 id: 1,
                 is_radar: true,
-                location: Location {
-                    longitude: 53.9333,
-                    latitude: 53.9333,
-                },
+                location: LocationMother::zero_location(),
             },
             Some(70),
             &"8:10".to_string(),
@@ -111,10 +94,7 @@ async fn test_handle_snap_send_time_value() {
             &Camera {
                 id: 1,
                 is_radar: true,
-                location: Location {
-                    longitude: 53.9333,
-                    latitude: 53.9333,
-                },
+                location: LocationMother::moscow_location(),
             },
             Some(70),
             &"25:10".to_string(),

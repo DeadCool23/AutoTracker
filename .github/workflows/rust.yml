@@ -46,9 +46,9 @@ jobs:
     - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
-        POSTGRES_USER=$(grep '^POSTGRES_USER=' ../../docker/.env | cut -d '=' -f2)
-        POSTGRES_PASSWORD=$(grep '^POSTGRES_PASSWORD=' ../../docker/.env | cut -d '=' -f2)
-        POSTGRES_DB=$(grep '^POSTGRES_DB=' ../../docker/.env | cut -d '=' -f2)
+        POSTGRES_USER=$(grep '^POSTGRES_USER=' ../../../.env | cut -d '=' -f2)
+        POSTGRES_PASSWORD=$(grep '^POSTGRES_PASSWORD=' ../../../.env | cut -d '=' -f2)
+        POSTGRES_DB=$(grep '^POSTGRES_DB=' ../../../.env | cut -d '=' -f2)
         
         echo "POSTGRES_USER: $POSTGRES_USER"
         echo "POSTGRES_DB: $POSTGRES_DB"

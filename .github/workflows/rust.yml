@@ -25,8 +25,8 @@ jobs:
     
     - name: Load environment variables
       id: set-env
+      working-directory: ./backend
       run: |
-        cd ./docker
         echo "postgres_user=$(grep '^POSTGRES_USER=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
         echo "postgres_db=$(grep '^POSTGRES_DB=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT
         echo "clickhouse_user=$(grep '^CLICKHOUSE_USER=' .env | cut -d '=' -f2)" >> $GITHUB_OUTPUT

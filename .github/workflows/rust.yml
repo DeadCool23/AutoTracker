@@ -31,16 +31,6 @@ jobs:
       run: |
         docker compose up -d
 
-    - name: Load environment variables
-      working-directory: ./backend
-      run: |
-        if [ -f .env ]; then
-          export $(grep -v '^#' .env | xargs)
-        else
-          echo "Error: .env file not found"
-          exit 1
-        fi
-
     - name: Wait for PostgreSQL to be ready
       run: |
         for i in {1..30}; do
@@ -56,9 +46,12 @@ jobs:
     - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
+        POSTGRES_USER=$(grep '^POSTGRES_USER=' ../../docker/.env | cut -d '=' -f2)
+        POSTGRES_PASSWORD=$(grep '^POSTGRES_PASSWORD=' ../../docker/.env | cut -d '=' -f2)
+        POSTGRES_DB=$(grep '^POSTGRES_DB=' ../../docker/.env | cut -d '=' -f2)
+        
         echo "POSTGRES_USER: $POSTGRES_USER"
         echo "POSTGRES_DB: $POSTGRES_DB"
-        echo "POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
         
         for script in tables.sql constraints.sql roles.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then

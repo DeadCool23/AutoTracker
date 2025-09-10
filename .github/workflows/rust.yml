@@ -16,11 +16,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup environment
-      working-directory: ./backend
-      run: |
-        # Копируем шаблон
-        cp .env.example .env
-        # Заменяем PROJECT_ROOT
-        sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE|g" .env
-        cat .env
+    - name: List files
+      run: ls -la

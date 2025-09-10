@@ -29,4 +29,4 @@ jobs:
     - name: Start Docker containers
       working-directory: ./backend
       run: |
-        docker-compose up -d
+        docker compose up -d

@@ -87,7 +87,6 @@ jobs:
         CLICKHOUSE_PASSWORD=$(grep '^CLICKHOUSE_PASSWORD=' ../../../.env | cut -d '=' -f2)
         CLICKHOUSE_DB=$(grep '^CLICKHOUSE_DB=' ../../../.env | cut -d '=' -f2)
         
-        ls -la
         if [ -f "tables.sql" ]; then
           echo "Executing tables.sql for ClickHouse"
           # Используем host 'clickhouse' (имя контейнера) вместо localhost
@@ -100,3 +99,4 @@ jobs:
         else
           echo "Warning: tables.sql not found for ClickHouse"
         fi
+        ./copy_on_docker.sh

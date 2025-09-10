@@ -30,3 +30,26 @@ jobs:
       working-directory: ./backend
       run: |
         docker compose up -d
+
+    - name: Load environment variables
+      run: |
+        # Переходим в папку с .env файлом и читаем его
+        cd ./docker
+        if [ -f .env ]; then
+          export $(grep -v '^#' .env | xargs)
+        else
+          echo "Error: .env file not found"
+          exit 1
+        fi
+
+    - name: postgres data preparing
+      working-directory: ./backend/db/sql_scripts/postgres
+      run: |
+        for script in tables.sql constraints.sql roles.sql procedure.sql functions.sql copy.sql; do
+          if [ -f "$script" ]; then
+            echo "Executing $script"
+            docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+          else
+            echo "Warning: $script not found"
+          fi
+        done

@@ -110,4 +110,4 @@ jobs:
 
     - name: Rust testing
       working-directory: ./backend/api/src
-      run: cargo test --show-output
+      run: cargo test -- --show-output

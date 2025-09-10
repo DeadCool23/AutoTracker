@@ -60,7 +60,9 @@ macro_rules! select_repository {
     };
 }
 
+#[allow(dead_code)]
 const MAX_RETRIES: usize = 5;
+#[allow(dead_code)]
 const RETRY_DELAY_SECS: usize = 5;
 const TANDEM_THRESHOLD: usize = 10;
 

@@ -40,6 +40,7 @@ async fn test_update_user_passport_fail() {
         )
         .await;
 
+    println!("{:#?}", res);
     assert!(res.is_err())
 }
 

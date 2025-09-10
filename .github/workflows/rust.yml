@@ -99,4 +99,6 @@ jobs:
         else
           echo "Warning: tables.sql not found for ClickHouse"
         fi
-        ./copy_on_docker.sh
+        
+        docker exec clickhouse chmod +x /scripts/copy.sh
+        docker exec clickhouse /scripts/copy.sh

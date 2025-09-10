@@ -19,5 +19,5 @@ jobs:
     - name: List files
       working-directory: ./backend
       run: |
-        sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE|g" .env
+        sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE/backend|g" .env
         cat .env

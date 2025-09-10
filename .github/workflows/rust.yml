@@ -106,4 +106,8 @@ jobs:
 
     - name: Rust building
       working-directory: ./backend/api/src
-      run: cargo build --verbose
+      run: cargo build
+
+    - name: Rust testing
+      working-directory: ./backend/api/src
+      run: cargo test

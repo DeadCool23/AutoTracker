@@ -16,8 +16,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: List files
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Setup env
       working-directory: ./backend
       run: |
         sed -i "s|PROJECT_ROOT=.*|PROJECT_ROOT=$GITHUB_WORKSPACE/backend|g" .env
         cat .env
+    
+    - name: Start Docker containers
+      working-directory: ./backend
+      run: |
+        docker-compose up -d

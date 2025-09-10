@@ -53,7 +53,7 @@ jobs:
         echo "POSTGRES_USER: $POSTGRES_USER"
         echo "POSTGRES_DB: $POSTGRES_DB"
         
-        for script in tables.sql constraints.sql roles.sql procedure.sql functions.sql copy.sql; do
+        for script in tables.sql constraints.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
             docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"

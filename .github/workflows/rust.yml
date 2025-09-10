@@ -41,13 +41,25 @@ jobs:
           exit 1
         fi
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        for i in {1..30}; do
+          if docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; then
+            echo "PostgreSQL is ready!"
+            break
+          fi
+          echo "Waiting for PostgreSQL... attempt $i"
+          sleep 2
+        done
+        docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+
     - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
         for script in tables.sql constraints.sql roles.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-            docker exec -i postgres psql -h postgres -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+            docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
           else
             echo "Warning: $script not found"
           fi

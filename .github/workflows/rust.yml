@@ -33,8 +33,6 @@ jobs:
 
     - name: Load environment variables
       run: |
-        # Переходим в папку с .env файлом и читаем его
-        cd ./docker
         if [ -f .env ]; then
           export $(grep -v '^#' .env | xargs)
         else
@@ -42,7 +40,7 @@ jobs:
           exit 1
         fi
 
-    - name: postgres data preparing
+    - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
         for script in tables.sql constraints.sql roles.sql procedure.sql functions.sql copy.sql; do

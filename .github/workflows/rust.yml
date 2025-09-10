@@ -32,6 +32,7 @@ jobs:
         docker compose up -d
 
     - name: Load environment variables
+      working-directory: ./backend
       run: |
         if [ -f .env ]; then
           export $(grep -v '^#' .env | xargs)

@@ -11,7 +11,16 @@ env:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
 
+    - name: Build Rust
+      working-directory: ./backend/api/src
+      run: cargo build
+  
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -104,10 +113,6 @@ jobs:
         docker exec clickhouse chmod +x /scripts/copy.sh
         docker exec clickhouse /scripts/copy.sh
 
-    - name: Rust building
+    - name: Rust unit tests
       working-directory: ./backend/api/src
-      run: cargo build
-
-    - name: Rust testing
-      working-directory: ./backend/api/src
-      run: cargo test -- --show-output
+      run: cargo test

@@ -109,4 +109,4 @@ jobs:
     
     - name: Rust unit tests
       working-directory: ./backend/api/src
-      run: cargo test -p data_access business_logic
+      run: cargo test -p data_access -p business_logic

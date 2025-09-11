@@ -3,7 +3,7 @@ use data_access::{
     repositories::postgres::{PgUserRepo, PG_URL},
     repositories_traits::UserRepository,
 };
-use models::{Document, Role, User};
+use models::{objmother::UserMother, Document, Role, User};
 
 #[tokio::test]
 async fn test_get_user_by_auth_info() {
@@ -32,7 +32,7 @@ async fn test_update_user_passport_fail() {
 
     let res = repo
         .update_user_passport(
-            &"email123@example.com".to_string(),
+            &"undefined@undefined.com".to_string(),
             &Document {
                 serial: "1111".to_string(),
                 number: "111111".to_string(),
@@ -48,8 +48,8 @@ async fn test_update_user_passport_fail() {
 async fn test_update_user_passport_success() {
     let email = "uewmleii@icloud.com".to_string();
     let passport = Document {
-        serial: "1111".to_string(),
-        number: "111111".to_string(),
+        serial: "1221".to_string(),
+        number: "112211".to_string(),
     };
     let repo = PgUserRepo::from(&PG_URL).await.unwrap();
 
@@ -65,25 +65,16 @@ async fn test_update_user_passport_success() {
 
 #[tokio::test]
 async fn test_add_user() {
-    let new_user = User {
-        name: "mock_name".to_string(),
-        surname: "mock_surname".to_string(),
-        lastname: None,
-        email: "email123@example.com".to_string(),
-        passport: None,
-        role: Role::user,
-        is_verified: false,
-    };
+    let new_user = UserMother::valid_user();
     let pswd = "123456789";
 
     let repo = PgUserRepo::from(&PG_URL).await.unwrap();
 
     let res = repo.insert_user(&new_user, pswd).await;
 
-    println!("{:#?}", res);
-    assert!(res.is_ok());
+    let _ = repo.delete_user(&new_user).await;
 
-    let res = repo.delete_user(&new_user).await;
+    println!("{:#?}", res);
     assert!(res.is_ok());
 }
 

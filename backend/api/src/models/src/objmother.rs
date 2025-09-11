@@ -70,8 +70,8 @@ pub struct UserMother;
 impl UserMother {
     pub fn valid_user() -> User {
         UserBuilder::new()
-            .name("Иван")
-            .surname("Иванов")
+            .name("Тип")
+            .surname("Типов")
             .lastname(Some("Иванович".to_string()))
             .email("ivanov@example.ru")
             .role(Role::user)
@@ -82,8 +82,8 @@ impl UserMother {
     
     pub fn operator_user() -> User {
         UserBuilder::new()
-            .name("Оператор")
-            .surname("Системный")
+            .name("Тип")
+            .surname("Типов")
             .lastname(None)
             .email("operator@system.ru")
             .role(Role::operator)
@@ -94,8 +94,8 @@ impl UserMother {
     
     pub fn audit_user() -> User {
         UserBuilder::new()
-            .name("Аудитор")
-            .surname("Проверяющий")
+            .name("Тип")
+            .surname("Типов")
             .lastname(Some("Сергеевич".to_string()))
             .email("audit@company.ru")
             .role(Role::audit)
@@ -106,8 +106,8 @@ impl UserMother {
     
     pub fn unverified_user() -> User {
         UserBuilder::new()
-            .name("Неверифицированный")
-            .surname("Пользователь")
+            .name("Тип")
+            .surname("Типов")
             .lastname(None)
             .email("unverified@mail.ru")
             .role(Role::user)
@@ -118,8 +118,8 @@ impl UserMother {
 
     pub fn exist_user() -> User {
         UserBuilder::new()
-            .name("Неверифицированный")
-            .surname("Пользователь")
+            .name("Тип")
+            .surname("Типов")
             .lastname(None)
             .email("exist@exist.ru")
             .role(Role::user)

@@ -102,7 +102,8 @@ jobs:
     - name: Allure report
       working-directory: ./backend/api
       run: |
-        apt-get install -y xmlstarlet
+        sudo apt-get update
+        sudo apt-get install -y xmlstarlet
         cargo install cargo2junit
         ./allure_report.sh
 

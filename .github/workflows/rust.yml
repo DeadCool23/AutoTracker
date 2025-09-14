@@ -31,9 +31,11 @@ jobs:
 
     - name: Install Allure
       run: |
-        sudo apt-add-repository ppa:qameta/allure -y
-        sudo apt update
-        sudo apt install allure -
+        ALLURE_VERSION=2.27.0
+        wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
+        unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
+        export PATH=$HOME/allure/allure-$ALLURE_VERSION/bin:$PATH
+        allure --version
     
     - name: Setup env
       working-directory: ./backend

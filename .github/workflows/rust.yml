@@ -79,48 +79,6 @@ jobs:
           fi
         done
     
-    - name: Wait for ClickHouse to be ready
-      run: |
-        echo "Waiting for ClickHouse to be ready..."
-        timeout 180s bash -c '
-          while ! curl -s http://localhost:8123/ping >/dev/null; do
-            sleep 3
-            echo "ClickHouse is not ready yet..."
-          done
-        '
-        echo "ClickHouse HTTP interface is ready!"
-        
-        timeout 120s bash -c '
-          while ! docker exec clickhouse clickhouse-client -h localhost --query "SELECT 1" 2>/dev/null; do
-            sleep 2
-            echo "Waiting for ClickHouse native interface..."
-          done
-        '
-        echo "ClickHouse native interface is ready!"
-
-    - name: ClickHouse data preparing
-      working-directory: ./backend/db/sql_scripts/clickhouse
-      run: |
-        CLICKHOUSE_USER=$(grep '^CLICKHOUSE_USER=' ../../../.env | cut -d '=' -f2)
-        CLICKHOUSE_PASSWORD=$(grep '^CLICKHOUSE_PASSWORD=' ../../../.env | cut -d '=' -f2)
-        CLICKHOUSE_DB=$(grep '^CLICKHOUSE_DB=' ../../../.env | cut -d '=' -f2)
-        
-        if [ -f "tables.sql" ]; then
-          echo "Executing tables.sql for ClickHouse"
-          # Используем host 'clickhouse' (имя контейнера) вместо localhost
-          cat tables.sql | docker exec -i clickhouse clickhouse-client \
-            -h localhost \
-            -u "$CLICKHOUSE_USER" \
-            --password "$CLICKHOUSE_PASSWORD" \
-            --database "$CLICKHOUSE_DB" \
-            --multiquery
-        else
-          echo "Warning: tables.sql not found for ClickHouse"
-        fi
-        
-        docker exec clickhouse chmod +x /scripts/copy.sh
-        docker exec clickhouse /scripts/copy.sh
-    
     - name: Rust unit tests
       working-directory: ./backend/api
       run: make unit-test

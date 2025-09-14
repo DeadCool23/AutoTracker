@@ -101,7 +101,10 @@ jobs:
 
     - name: Allure report
       working-directory: ./backend/api
-      run: ./allure_report.sh
+      run: |
+        apt-get install -y xmlstarlet
+        cargo install cargo2junit
+        ./allure_report.sh
 
     - name: Deploy Allure report to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3

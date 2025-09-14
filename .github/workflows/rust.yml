@@ -23,8 +23,17 @@ jobs:
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
     
-    - name: Set up Allure
-      uses: allure-framework/allure-commandline-action@v2
+    - name: Set up Java (for Allure)
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install Allure
+      run: |
+        sudo apt-add-repository ppa:qameta/allure -y
+        sudo apt update
+        sudo apt install allure -
     
     - name: Setup env
       working-directory: ./backend
@@ -135,7 +144,7 @@ jobs:
       run: ./allure_report.sh
 
     - name: Deploy Allure report to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v6
+      uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./backend/api/allure-report

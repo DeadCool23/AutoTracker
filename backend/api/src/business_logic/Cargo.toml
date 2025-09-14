@@ -13,3 +13,7 @@ log = "0.4.27"
 
 models = { path = "./../models" }
 data_access = { path = "./../data_access"}
+
+[lib]
+path = "src/lib.rs"
+test = false

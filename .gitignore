@@ -92,6 +92,7 @@ __pycache__/
 # ============ Custom gitignore ============
 # ==========================================
 
+allure-re*/
 .DS_Store
 .docker
 logs

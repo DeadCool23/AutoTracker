@@ -24,3 +24,7 @@ chrono = { version = "0.4", features = ["serde"] }
 
 cfg ={ path = "./../cfg"}
 models = { path = "./../models" }
+
+[lib]
+path = "src/lib.rs"
+test = false

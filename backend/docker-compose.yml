@@ -49,6 +49,14 @@ services:
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     networks:
       - db
+  
+  test-container:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    container_name: test-container
+    volumes:
+      - "./allure-report:/app/api/allure-report"
 
 volumes:
   redis_data:

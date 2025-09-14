@@ -21,3 +21,12 @@ cfg = { path = "./../cfg" }
 logger = { path = "./../logger"}
 models = { path = "./../models" }
 di_container = { path = "./../di_container" }
+
+[lib]
+path = "src/lib.rs"
+test = false
+
+[[bin]]
+name = "api"
+path = "src/main.rs"
+test = false

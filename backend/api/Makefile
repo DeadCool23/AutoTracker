@@ -98,6 +98,21 @@ snap-inserts-mes-run:
 	@$(MAKE) $(BUILD)
 	RUST_LOG=$(LOG_LEVEL) ./build/$(BUILD)/snap_insert_mes
 
+tests:
+	@cd ./src && cargo test --no-fail-fast -p business_logic -p data_access -p api --tests -- --skip clickhouse
+
+unit-test:
+	@cd ./src && cargo test --no-fail-fast -p business_logic -p data_access -p api --tests -- --skip integration --skip clickhouse --skip e2e
+
+integration-test:
+	@cd ./src && cargo test --no-fail-fast integration -p business_logic --tests -- --skip clickhouse
+
+e2e-test:
+	@cd ./src && cargo test e2e -p api --no-fail-fast --tests
+
+TEST_REPORT_FILENAME=test_report.json
+test-report:
+	@./allure_report.sh
 
 log-info:
 	@echo "=$(BOLD_GREEN)INFO$(RESET)==================================================================================="

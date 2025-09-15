@@ -12,17 +12,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Install Allure
-      run: |
-        ALLURE_VERSION=2.27.0
-        wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
-        unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
-        # export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
-        allure --version
 
     - name: Build Rust
       working-directory: ./backend/api/src
@@ -36,7 +28,14 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
-
+    
+    - name: Install Allure
+      run: |
+        ALLURE_VERSION=2.27.0
+        wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
+        unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
+        # export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
+        allure --version
     
     - name: Setup env
       working-directory: ./backend

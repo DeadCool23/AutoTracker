@@ -70,6 +70,11 @@ cd ./src
 cargo build
 cd ..
 
+make test-report
+allure open allure-report/ &
+
+sleep 5
+
 echo ""
 echo "===== UNIT ТЕСТИРОВАНИЕ ====="
 
@@ -84,6 +89,3 @@ echo ""
 echo "===== E2E ТЕСТИРОВАНИЕ ====="
 
 make e2e-test
-
-make test-report
-allure open allure-report/

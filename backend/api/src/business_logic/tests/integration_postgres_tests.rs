@@ -10,7 +10,7 @@ mod integration_postgres_test {
 
         let res = service
             .auth(
-                &"uewmleii@icloud.com".to_string(),
+                &"uewmleрррррii@icloud.com".to_string(),
                 &"Krd!G0RW&".to_string(),
             )
             .await;

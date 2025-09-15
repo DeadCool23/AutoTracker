@@ -91,11 +91,11 @@ jobs:
       working-directory: ./backend/api
       run: make e2e-test
     
-    - name: Restore Allure report cache
+    - name: Restore Allure history
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
-        key: allure-report-${{ github.sha }}
+        key: allure-report-${{ github.ref_name }}
         restore-keys: |
           allure-report-
 
@@ -108,11 +108,12 @@ jobs:
         cargo install cargo2junit
         ./allure_report.sh
 
-    - name: Save Allure report cache
+    - name: Save Allure history
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
-        key: allure-report-${{ github.sha }}
+        key: allure-report-${{ github.ref_name }}
+
     
     - name: Save Allure report
       uses: actions/upload-artifact@v4

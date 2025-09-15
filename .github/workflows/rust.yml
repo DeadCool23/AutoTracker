@@ -34,7 +34,7 @@ jobs:
         ALLURE_VERSION=2.27.0
         wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
         unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
-        # export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
+        export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
         allure --version
     
     - name: Setup env

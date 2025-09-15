@@ -15,6 +15,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Install Allure
+      run: |
+        ALLURE_VERSION=2.27.0
+        wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
+        unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
+        # export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
+        allure --version
 
     - name: Build Rust
       working-directory: ./backend/api/src
@@ -29,13 +37,6 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Allure
-      run: |
-        ALLURE_VERSION=2.27.0
-        wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
-        unzip allure-$ALLURE_VERSION.zip -d $HOME/allure
-        # export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
-        allure --version
     
     - name: Setup env
       working-directory: ./backend
@@ -95,7 +96,6 @@ jobs:
       continue-on-error: true
     
     - name: Restore Allure history
-      if: always()
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
@@ -104,7 +104,6 @@ jobs:
           allure-report-
 
     - name: Allure report
-      if: always()
       working-directory: ./backend/api
       run: |
         export PATH=$HOME/allure/allure-2.27.0/bin:$PATH
@@ -114,7 +113,6 @@ jobs:
         ./allure_report.sh
 
     - name: Save Allure history
-      if: always()
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
@@ -122,7 +120,6 @@ jobs:
 
     
     - name: Save Allure report
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: allure-report

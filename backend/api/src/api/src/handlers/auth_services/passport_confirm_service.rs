@@ -10,8 +10,8 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, ResponseWithoutData, Sta
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct PassportConfRequest {
     #[schema(example = "exist@exist.com")]
-    email: String,
-    passport: Document,
+    pub email: String,
+    pub passport: Document,
 }
 
 #[axum::debug_handler]

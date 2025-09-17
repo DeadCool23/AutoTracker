@@ -179,9 +179,9 @@ impl SnapRepository for ClickHouseSnapRepo {
             .bind(gos_number)
             .fetch_all::<CarSnapshotRow>()
             .await
-            .map_err(|e| {
-                log::error!("Query failed: {}", e);
-                DataAccessError::ClickHouseBaseError(e)
+            .map_err(|e| { 
+                log::error!("Query failed: {}", e); 
+                DataAccessError::ClickHouseBaseError(e) 
             })?;
 
         log::debug!("Found {} matching snaps", rows.len());

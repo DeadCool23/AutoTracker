@@ -9,9 +9,9 @@ use utoipa::ToSchema;
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct AuthRequest {
     #[schema(example = "email@example.com")]
-    email: String,
+    pub email: String,
     #[schema(example = "password")]
-    pswd: String,
+    pub pswd: String,
 }
 
 #[derive(ToSchema, Deserialize, Serialize, Debug)]

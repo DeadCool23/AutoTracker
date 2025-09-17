@@ -10,11 +10,11 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct RouteRequest {
     #[schema(example = "example@example.com")]
-    user_login: String,
+    pub user_login: String,
     #[schema(example = "А777МР77")]
-    gos_num: String,
+    pub gos_num: String,
     #[schema(example = "01.01.2025")]
-    date: String,
+    pub date: String,
 }
 
 #[derive(ToSchema, Deserialize, Serialize, Debug)]

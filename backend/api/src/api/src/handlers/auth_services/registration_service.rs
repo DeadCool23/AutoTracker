@@ -9,17 +9,17 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, ResponseWithoutData, Sta
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct RegRequest {
     #[schema(example = "firstname")]
-    firstname: String,
+    pub firstname: String,
     #[schema(example = "surname")]
-    surname: String,
+    pub surname: String,
     #[schema(example = "lastname")]
-    lastname: Option<String>,
+    pub lastname: Option<String>,
     #[schema(example = "email@example.com")]
-    email: String,
+    pub email: String,
     #[schema(example = "password")]
-    pswd: String,
+    pub pswd: String,
     #[schema(example = "password")]
-    rep_pswd: String,
+    pub rep_pswd: String,
 }
 
 #[axum::debug_handler]

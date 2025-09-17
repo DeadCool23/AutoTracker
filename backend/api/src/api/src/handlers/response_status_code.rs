@@ -9,7 +9,7 @@ pub enum ResponseStatusCodeType {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(ToSchema, Deserialize, Serialize, Debug)]
+#[derive(ToSchema, Deserialize, Serialize, Debug, PartialEq)]
 pub enum ResponseStatusCode {
     OK = 0,
     INVALID_DATE = 1001,

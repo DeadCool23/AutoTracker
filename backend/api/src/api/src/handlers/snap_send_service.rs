@@ -16,13 +16,13 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct SnapSendRequest {
     #[schema(example = 70)]
-    speed: Option<u16>,
+    pub speed: Option<u16>,
     #[schema(example = "8:10")]
-    time: String,
+    pub time: String,
     #[schema(example = "01.01.2025")]
-    date: String,
+    pub date: String,
     #[schema(example = "А777МР77")]
-    gos_num: String,
+    pub gos_num: String,
     #[schema(example = json!(
         "id": 1,
         "location": { 
@@ -30,7 +30,7 @@ pub struct SnapSendRequest {
             "latitude": 56.89882 
         }
     ))]
-    camera: Camera,
+    pub camera: Camera,
 }
 
 #[axum::debug_handler]

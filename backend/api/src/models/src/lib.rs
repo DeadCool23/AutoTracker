@@ -4,7 +4,7 @@ pub mod objmother;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default, PartialEq)]
 pub struct Document {
     #[schema(example = "1111")]
     pub serial: String,
@@ -12,7 +12,7 @@ pub struct Document {
     pub number: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, ToSchema, Default)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Default, PartialEq)]
 pub struct Car {
     pub owner_fio: (String, String, Option<String>),
     pub gos_num: String,
@@ -26,7 +26,7 @@ pub struct Car {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default, PartialEq)]
 pub enum Role {
     #[default]
     user,
@@ -34,7 +34,7 @@ pub enum Role {
     audit,
 }
 
-#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default, PartialEq)]
 pub struct User {
     #[schema(example = "Ivan")]
     pub name: String,
@@ -55,7 +55,7 @@ pub struct User {
     pub passport: Option<Document>,
 }
 
-#[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize, Default)]
+#[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize, Default, PartialEq)]
 pub struct Location {
     #[schema(example = 53.9222)]
     pub longitude: f64,
@@ -63,7 +63,7 @@ pub struct Location {
     pub latitude: f64,
 }
 
-#[derive(ToSchema, Deserialize, Serialize, Debug, Default)]
+#[derive(ToSchema, Deserialize, Serialize, Debug, Default, PartialEq)]
 pub struct PointData {
     #[schema(example = 60)]
     pub speed: Option<u16>,
@@ -73,7 +73,7 @@ pub struct PointData {
     pub cords: Location,
 }
 
-#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Default, PartialEq)]
 pub struct Snap {
     pub camera: Camera,
     pub time: String,
@@ -82,7 +82,7 @@ pub struct Snap {
     pub gos_num: String,
 }
 
-#[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize, Default)]
+#[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize, Default, PartialEq)]
 pub struct Camera {
     #[schema(example = 1)]
     pub id: usize,
@@ -94,7 +94,7 @@ pub struct Camera {
     pub location: Location,
 }
 
-#[derive(Debug, ToSchema, Serialize, Deserialize, Default)]
+#[derive(Debug, ToSchema, Serialize, Deserialize, Default, PartialEq)]
 pub struct TrackInfo {
     pub track_time: String,
     pub route_date: String,

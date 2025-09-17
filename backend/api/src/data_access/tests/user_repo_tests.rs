@@ -47,7 +47,7 @@ mod user_repo_tests {
     
     #[tokio::test]
     async fn test_update_user_passport_success() {
-        let email = "uewmleii@icloud.com".to_string();
+        let email = "c187blu4@yahoo.com".to_string();
         let passport = Document {
             serial: "1221".to_string(),
             number: "112211".to_string(),
@@ -120,7 +120,7 @@ mod user_repo_tests {
     
     #[tokio::test]
     async fn test_clickhouse_update_user_passport_success() {
-        let email = "uewmleii@icloud.com".to_string();
+        let email = "c187blu4@yahoo.com".to_string();
         let passport = Document {
             serial: "1111".to_string(),
             number: "111111".to_string(),

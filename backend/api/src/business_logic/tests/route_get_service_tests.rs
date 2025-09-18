@@ -2,14 +2,14 @@ mod route_get_service_tests {
     use business_logic::services::route_service::RouteService;
     use business_logic::services_traits::RouteGetter;
 
-    use data_access::repositories::minimal::InMemorySnapRepository;
+    use data_access::repositories::minimal::MapSnapRepository;
     use data_access::repositories::mocked::{MockSnapRepo, MockTrackInfoRepo, MockUserRepo};
 
     #[tokio::test]
     async fn test_handle_route_success() {
         let service = RouteService::from(
             Box::new(MockUserRepo),
-            Box::new(InMemorySnapRepository::new()),
+            Box::new(MapSnapRepository::new()),
             Box::new(MockTrackInfoRepo),
         );
 

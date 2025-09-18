@@ -8,7 +8,7 @@ ALLURE_REPORT=allure-report
 
 cd "$SRC_DIR"
 cargo +nightly test --no-fail-fast -p business_logic -p data_access -p api --tests \
-  -- -Z unstable-options --report-time --format json --skip integration --skip clickhouse \
+  -- -Z unstable-options --report-time --format json --skip clickhouse \
   | cargo2junit > "$JUNIT_FILE"
 cd ..
 

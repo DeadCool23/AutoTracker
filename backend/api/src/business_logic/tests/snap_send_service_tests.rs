@@ -1,12 +1,12 @@
 mod snap_send_service_tests {
     use business_logic::services::snap_send_service::SnapSendService;
     use business_logic::services_traits::SnapSender;
-    use data_access::repositories::{mocked::MockSnapRepo, minimal::InMemorySnapRepository};
+    use data_access::repositories::{mocked::MockSnapRepo, minimal::MapSnapRepository};
     use models::{Camera, Location, objmother::{CameraMother, LocationMother}};
 
     #[tokio::test]
     async fn test_handle_snap_send_success() {
-        let service = SnapSendService::from(Box::new(InMemorySnapRepository::new()));
+        let service = SnapSendService::from(Box::new(MapSnapRepository::new()));
 
         let res = service
             .insert_snap(

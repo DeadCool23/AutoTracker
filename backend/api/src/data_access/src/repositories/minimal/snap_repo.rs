@@ -5,11 +5,11 @@ use crate::error::DataAccessError;
 use crate::repositories_traits::SnapRepository;
 use models::Snap;
 
-pub struct InMemorySnapRepository {
+pub struct MapSnapRepository {
     snaps: Arc<RwLock<HashMap<String, Vec<Snap>>>>,
 }
 
-impl InMemorySnapRepository {
+impl MapSnapRepository {
     pub fn new() -> Self {
         Self {
             snaps: Arc::new(RwLock::new(HashMap::new())),
@@ -18,7 +18,7 @@ impl InMemorySnapRepository {
 }
 
 #[async_trait]
-impl SnapRepository for InMemorySnapRepository {
+impl SnapRepository for MapSnapRepository {
     async fn insert_snap(&self, snap: &Snap) -> Result<(), DataAccessError> {
         let mut snaps_map = self.snaps.write().map_err(|e| {
             DataAccessError::ConnectionError(format!("Failed to acquire write lock: {}", e).to_string())

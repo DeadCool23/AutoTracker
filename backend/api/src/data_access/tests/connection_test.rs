@@ -1,4 +1,4 @@
-mod commection_tests {
+mod connection_tests {
     use data_access::repositories::{clickhouse::CLICKHOUSE_URL, postgres::PG_URL, redis::REDIS_URL};
     use sqlx::PgPool;
 

@@ -77,7 +77,7 @@
   - _СУБД:_ PostgreSQL, Redis
 - ___frontend:___
   - _Mobile:_ Swift
-  - _Web:_ HTML + CSS + JS
+  - _Web:_ HTML + CSS + ReactJS
 
 ## Верхнеуровневое разбиение на компоненты
 

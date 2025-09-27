@@ -8,8 +8,6 @@ services:
     
     ports:
       - "6379:6379"
-    volumes:
-      - ./.docker/redis_data:/data
     networks:
       - db
 
@@ -25,7 +23,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./.docker/postgres_data:/var/lib/postgresql/data
       - ${PROJECT_ROOT}/db/data:/data
     networks:
       - db
@@ -39,7 +36,6 @@ services:
       - "9000:9000"
       - "9009:9009"
     volumes:
-      - ./.docker/clickhouse_data:/var/lib/clickhouse
       - ${PROJECT_ROOT}/db/data:/data
       - ${PROJECT_ROOT}/db/sql_scripts/clickhouse:/scripts
     environment:

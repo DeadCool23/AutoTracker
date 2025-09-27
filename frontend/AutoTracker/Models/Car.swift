@@ -1,16 +1,3 @@
-//#[derive(Serialize, Deserialize, Debug, ToSchema)]
-//pub struct Car {
-//    pub owner_fio: (String, String, Option<String>),
-//    pub gos_num: String,
-//    pub model: String,
-//    pub mark: String,
-//    pub color: String,
-//    pub year: u16,
-//    pub vin: String,
-//    pub sts: Document,
-//    pub pts: Document,
-//}
-
 struct OwnerFIO: Codable {
     let surname: String
     let name: String

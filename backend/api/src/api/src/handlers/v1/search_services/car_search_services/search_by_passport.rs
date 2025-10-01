@@ -1,42 +1,27 @@
-use super::CarSearcherResponse;
+use super::{CarSearcherResponse, SearchByPassportRequest};
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
-use crate::paths::TRACK_INFO_SEARCH_SERVICE_PATH as PATH;
+
+use crate::paths::CAR_SEARCH_BY_PASSPORT_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
-use models::Document;
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
 
 use super::StatusResponse;
 
-#[derive(ToSchema, Deserialize, Serialize, Debug)]
-pub struct SearchCarByFilterRequest {
-    #[schema(example = "name")]
-    pub name: Option<String>,
-    #[schema(example = "surname")]
-    pub surname: Option<String>,
-    #[schema(example = "lastname")]
-    pub lastname: Option<String>,
-    #[schema(value_type = Document)]
-    pub passport: Option<Document>,
-    #[schema(example = "А*23**99")]
-    pub gos_num: Option<String>,
-}
-
+#[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/car/search",
-    summary = "Поиск автомобилей",
-    description = "Поиск автомобилей по общим фильтрам",
-    request_body = SearchCarByFilterRequest,
+    path = "/api/v1/car/search/by-passport",
+    summary = "Поиск автомобиля",
+    description = "Поиск автомобиля по паспортным данным",
+    request_body = SearchByPassportRequest,
     responses(
         (status = StatusCode::OK, description = "Автомобили успешно найдены", body = CarSearcherResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
     tags = ["search", "car"]
 )]
-pub async fn handle_search_cars_by_filters(
-    ExtractJson(payload): ExtractJson<SearchCarByFilterRequest>,
+pub async fn handle_search_car_by_passport(
+    ExtractJson(payload): ExtractJson<SearchByPassportRequest>,
 ) -> Result<Json<CarSearcherResponse>, StatusCode> {
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
@@ -50,13 +35,7 @@ pub async fn handle_search_cars_by_filters(
     };
 
     let response = match service
-        .search_car(
-            payload.name,
-            payload.surname,
-            payload.lastname,
-            payload.passport,
-            payload.gos_num,
-        )
+        .search_cars_by_owner_passport(&payload.passport)
         .await
     {
         Ok(cars) => CarSearcherResponse { status, cars },

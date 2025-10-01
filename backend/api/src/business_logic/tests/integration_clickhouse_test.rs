@@ -1,26 +1,26 @@
 mod integration_clickhouse_test {
     use business_logic::services::{
-        auth_service::AuthService,
-        search_service::SearchService,
-        route_service::RouteService
+        auth_service::AuthService, route_service::RouteService, search_service::SearchService,
     };
-    use business_logic::services_traits::{Authorizer, TrackInfoSearcher, CarSearcher, RouteGetter};
-    use data_access::repositories::clickhouse::{ClickHouseUserRepo, ClickHouseCarRepo, ClickHouseTrackInfoRepo, ClickHouseSnapRepo, CLICKHOUSE_URL};
+    use business_logic::services_traits::{
+        Authorizer, CarSearcher, RouteGetter, TrackInfoSearcher,
+    };
+    use data_access::repositories::clickhouse::{
+        ClickHouseCarRepo, ClickHouseSnapRepo, ClickHouseTrackInfoRepo, ClickHouseUserRepo,
+        CLICKHOUSE_URL,
+    };
     use models::bulder::UserBuilder;
     use models::{Document, Role};
 
     #[tokio::test]
     async fn integration_test_clickhouse_auth() {
-        let service = AuthService::from(Box::new(ClickHouseUserRepo::from(&CLICKHOUSE_URL).await.unwrap()));
+        let service = AuthService::from(Box::new(
+            ClickHouseUserRepo::from(&CLICKHOUSE_URL).await.unwrap(),
+        ));
         let email = "uewmleii@icloud.com".to_string();
         let pswd = "Krd!G0RW&".to_string();
 
-        let res = service
-            .auth(
-                &email,
-                &pswd,
-            )
-            .await;
+        let res = service.auth(&email, &pswd).await;
 
         println!("{:#?}", res);
         let cuser = UserBuilder::new()
@@ -32,7 +32,7 @@ mod integration_clickhouse_test {
             .is_verified(true)
             .passport(Some(Document {
                 serial: "9217".to_string(),
-                number: "389203".to_string()
+                number: "389203".to_string(),
             }))
             .build();
         assert!(res.is_ok());
@@ -43,7 +43,11 @@ mod integration_clickhouse_test {
     async fn integration_test_clickhouse_search_track_info_by_date() {
         let service = SearchService::from(
             Box::new(ClickHouseCarRepo::from(&CLICKHOUSE_URL).await.unwrap()),
-            Box::new(ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL).await.unwrap())
+            Box::new(
+                ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL)
+                    .await
+                    .unwrap(),
+            ),
         );
 
         let res = service
@@ -59,7 +63,11 @@ mod integration_clickhouse_test {
     async fn integration_test_clickhouse_search_car_by_gos_num_mask() {
         let service = SearchService::from(
             Box::new(ClickHouseCarRepo::from(&CLICKHOUSE_URL).await.unwrap()),
-            Box::new(ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL).await.unwrap())
+            Box::new(
+                ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL)
+                    .await
+                    .unwrap(),
+            ),
         );
 
         let res = service
@@ -76,7 +84,11 @@ mod integration_clickhouse_test {
         let service = RouteService::from(
             Box::new(ClickHouseUserRepo::from(&CLICKHOUSE_URL).await.unwrap()),
             Box::new(ClickHouseSnapRepo::from(&CLICKHOUSE_URL).await.unwrap()),
-            Box::new(ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL).await.unwrap())
+            Box::new(
+                ClickHouseTrackInfoRepo::from(&CLICKHOUSE_URL)
+                    .await
+                    .unwrap(),
+            ),
         );
 
         let res = service

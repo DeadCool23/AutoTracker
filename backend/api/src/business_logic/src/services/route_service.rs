@@ -4,7 +4,7 @@ use crate::services_traits::RouteGetter;
 use async_trait::async_trait;
 use models::PointData;
 
-use data_access::{repositories_traits::{SnapRepository, TrackInfoRepository, UserRepository}};
+use data_access::repositories_traits::{SnapRepository, TrackInfoRepository, UserRepository};
 
 pub struct RouteService {
     user_repo: Box<dyn UserRepository>,

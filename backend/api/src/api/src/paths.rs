@@ -1,5 +1,9 @@
 use lazy_static::lazy_static;
 
+pub fn api_vpath(version: u8) -> String {
+    format!("/api/v{version}")
+}
+
 lazy_static! {
     // Swagger
     pub static ref DOCS_PATH: String = "/docs".to_string();

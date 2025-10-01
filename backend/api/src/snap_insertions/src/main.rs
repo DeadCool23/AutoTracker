@@ -2,7 +2,7 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 use snaps_gen::gen_snap;
 
-use di_container::{Repositories, DataContainer};
+use di_container::{DataContainer, Repositories};
 
 const THREADS_CNT: usize = 20;
 const DURATION_TIME: u64 = 2;

@@ -2,7 +2,7 @@ mod car_search_by_passport_service_tests {
     use business_logic::services::search_service::SearchService;
     use business_logic::services_traits::CarSearcher;
     use data_access::repositories::mocked::{MockCarRepo, MockTrackInfoRepo};
-    use models::{Document, objmother::DocumentMother};
+    use models::{objmother::DocumentMother, Document};
 
     #[tokio::test]
     async fn test_handle_search_car_by_passport_success() {

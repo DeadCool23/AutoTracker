@@ -5,7 +5,7 @@ use axum::{
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::handlers::{
+use crate::handlers::v1::{
     auth_services::{
         auth_service::handle_auth, passport_confirm_service::handle_passport_conf,
         registration_service::handle_reg,
@@ -28,70 +28,94 @@ use crate::handlers::{
         },
     },
     snap_send_service::handle_snap_send,
-    ApiDoc,
+    ApiDoc as ApiDocV1,
 };
-use crate::paths;
+use crate::paths::*;
 
-pub fn init() -> Router {
+fn v1_path(path: &str) -> String {
+    format!("{}{}", api_vpath(1), path)
+}
+
+pub fn init_v1() -> Router {
     Router::new()
-        .route(&paths::ROUTE_GET_SERVICE_PATH, post(handle_route))
-        .route(&paths::AUTH_SERVICE_PATH, post(handle_auth))
-        .route(&paths::REG_SERVICE_PATH, post(handle_reg))
         .route(
-            &paths::PASSPORT_CONF_SERVICE_PATH,
+            &v1_path(ROUTE_GET_SERVICE_PATH.as_str()),
+            post(handle_route),
+        )
+        .route(&v1_path(AUTH_SERVICE_PATH.as_str()), post(handle_auth))
+        .route(&REG_SERVICE_PATH, post(handle_reg))
+        .route(
+            &v1_path(PASSPORT_CONF_SERVICE_PATH.as_str()),
             post(handle_passport_conf),
         )
-        .route(&paths::SNAP_SEND_SERVICE_PATH, put(handle_snap_send))
         .route(
-            &paths::CAMERA_GET_BY_ID_SERVICE_PATH,
+            &v1_path(SNAP_SEND_SERVICE_PATH.as_str()),
+            put(handle_snap_send),
+        )
+        .route(
+            &v1_path(CAMERA_GET_BY_ID_SERVICE_PATH.as_str()),
             get(handle_get_camera_by_id),
         )
         .route(
-            &paths::CAMERA_GET_BY_CORDS_SERVICE_PATH,
+            &v1_path(CAMERA_GET_BY_CORDS_SERVICE_PATH.as_str()),
             post(handle_get_camera_by_cords),
         )
         .route(
-            &paths::GET_AVG_SPEED_ON_CAMERA_PATH,
+            &v1_path(GET_AVG_SPEED_ON_CAMERA_PATH.as_str()),
             post(handle_get_avg_speed_for_car_on_camera),
         )
         .route(
-            &paths::CAR_SEARCH_SERVICE_PATH,
+            &v1_path(CAR_SEARCH_SERVICE_PATH.as_str()),
             post(handle_search_cars_by_filters),
         )
         .route(
-            &paths::CAR_SEARCH_BY_FIO_SERVICE_PATH,
+            &v1_path(CAR_SEARCH_BY_FIO_SERVICE_PATH.as_str()),
             post(handle_search_car_by_fio),
         )
         .route(
-            &paths::CAR_SEARCH_BY_PASSPORT_SERVICE_PATH,
+            &v1_path(CAR_SEARCH_BY_PASSPORT_SERVICE_PATH.as_str()),
             post(handle_search_car_by_passport),
         )
         .route(
-            &paths::CAR_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH,
+            &v1_path(CAR_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH.as_str()),
             post(handle_search_car_by_gos_num_mask),
         )
         .route(
-            &paths::TRACK_INFO_SEARCH_SERVICE_PATH,
+            &v1_path(TRACK_INFO_SEARCH_SERVICE_PATH.as_str()),
             post(handle_search_track_info_by_filters),
         )
         .route(
-            &paths::TRACK_INFO_SEARCH_BY_FIO_SERVICE_PATH,
+            &v1_path(TRACK_INFO_SEARCH_BY_FIO_SERVICE_PATH.as_str()),
             post(handle_search_track_info_by_fio),
         )
         .route(
-            &paths::TRACK_INFO_SEARCH_BY_DATE_SERVICE_PATH,
+            &v1_path(TRACK_INFO_SEARCH_BY_DATE_SERVICE_PATH.as_str()),
             post(handle_search_track_info_by_date),
         )
         .route(
-            &paths::TRACK_INFO_SEARCH_BY_PASSPORT_SERVICE_PATH,
+            &v1_path(TRACK_INFO_SEARCH_BY_PASSPORT_SERVICE_PATH.as_str()),
             post(handle_search_track_info_by_passport),
         )
         .route(
-            &paths::TRACK_INFO_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH,
+            &v1_path(TRACK_INFO_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH.as_str()),
             post(handle_search_track_info_by_gos_num_mask),
         )
         .merge(
-            SwaggerUi::new(paths::DOCS_PATH.as_str())
-                .url(paths::OPENAPI_DOCS_PATH.as_str(), ApiDoc::openapi()),
+            SwaggerUi::new(v1_path(DOCS_PATH.as_str()))
+                .url(v1_path(OPENAPI_DOCS_PATH.as_str()), ApiDocV1::openapi()),
         )
+}
+
+#[allow(dead_code)]
+fn v2_path(path: &str) -> String {
+    format!("{}{}", api_vpath(2), path)
+}
+
+pub fn init_v2() -> Router {
+    Router::new()
+}
+
+pub fn init() -> Router {
+    let routers_v1 = init_v1();
+    routers_v1.merge(init_v2())
 }

@@ -12,7 +12,7 @@ use axum::{
 #[axum::debug_handler]
 #[utoipa::path(
     get,
-    path = "/camera/{id}",
+    path = "/api/v1/camera/{id}",
     summary = "Получение камеры",
     description = "Получение камеры по id",
     responses(

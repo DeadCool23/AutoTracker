@@ -10,7 +10,7 @@ use business_logic::services_traits::{
 pub use business_logic::error;
 
 mod repo_connect;
-pub use repo_connect::{Repositories, DataContainer};
+pub use repo_connect::{DataContainer, Repositories};
 
 pub enum CoreServices {
     RouteGetService(Box<dyn RouteGetter>),

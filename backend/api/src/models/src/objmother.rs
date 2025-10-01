@@ -1,5 +1,5 @@
-use super::*;
 use super::bulder::*;
+use super::*;
 
 pub struct DocumentMother;
 
@@ -10,12 +10,9 @@ impl DocumentMother {
             .number("111111")
             .build()
     }
-    
+
     pub fn invalid_document() -> Document {
-        DocumentBuilder::new()
-            .serial("abc")
-            .number("hgygj")
-            .build()
+        DocumentBuilder::new().serial("abc").number("hgygj").build()
     }
 }
 
@@ -35,7 +32,7 @@ impl CarMother {
             .pts(DocumentMother::valid_document())
             .build()
     }
-    
+
     pub fn invalid_gos_num_car() -> Car {
         CarBuilder::new()
             .owner_fio("Петр", "Петров", None)
@@ -49,7 +46,7 @@ impl CarMother {
             .pts(DocumentMother::valid_document())
             .build()
     }
-    
+
     pub fn invalid_vin_car() -> Car {
         CarBuilder::new()
             .owner_fio("Сергей", "Сидоров", Some("Петрович".to_string()))
@@ -79,7 +76,7 @@ impl UserMother {
             .passport(Some(DocumentMother::valid_document()))
             .build()
     }
-    
+
     pub fn operator_user() -> User {
         UserBuilder::new()
             .name("Тип")
@@ -91,7 +88,7 @@ impl UserMother {
             .passport(Some(DocumentMother::valid_document()))
             .build()
     }
-    
+
     pub fn audit_user() -> User {
         UserBuilder::new()
             .name("Тип")
@@ -103,7 +100,7 @@ impl UserMother {
             .passport(None)
             .build()
     }
-    
+
     pub fn unverified_user() -> User {
         UserBuilder::new()
             .name("Тип")
@@ -138,12 +135,9 @@ impl LocationMother {
             .latitude(55.7558)
             .build()
     }
-    
+
     pub fn zero_location() -> Location {
-        LocationBuilder::new()
-            .longitude(0.0)
-            .latitude(0.0)
-            .build()
+        LocationBuilder::new().longitude(0.0).latitude(0.0).build()
     }
 }
 
@@ -156,7 +150,7 @@ impl PointDataMother {
             .cords(LocationMother::moscow_location())
             .build()
     }
-    
+
     pub fn unknown_speed_point() -> PointData {
         PointDataBuilder::new()
             .speed(None)
@@ -175,7 +169,7 @@ impl CameraMother {
             .location(LocationMother::moscow_location())
             .build()
     }
-    
+
     pub fn regular_camera() -> Camera {
         CameraBuilder::new()
             .id(2)
@@ -197,7 +191,7 @@ impl SnapMother {
             .gos_num("А123БВ777")
             .build()
     }
-    
+
     pub fn invalid_gos_num_snap() -> Snap {
         SnapBuilder::new()
             .camera(CameraMother::regular_camera())
@@ -207,7 +201,7 @@ impl SnapMother {
             .gos_num("В456Г123")
             .build()
     }
-    
+
     pub fn invalid_date_snap() -> Snap {
         SnapBuilder::new()
             .camera(CameraMother::regular_camera())
@@ -240,7 +234,7 @@ impl TrackInfoMother {
             .user(UserMother::valid_user())
             .build()
     }
-    
+
     pub fn operator_track_info() -> TrackInfo {
         TrackInfoBuilder::new()
             .track_time("10:15")

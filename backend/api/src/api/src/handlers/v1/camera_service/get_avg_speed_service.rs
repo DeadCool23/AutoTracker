@@ -30,7 +30,7 @@ pub struct AvgSpeedResponse {
 #[utoipa::path(
     post,
     request_body = AvgSpeedRequest,
-    path = "/camera/avg-speed",
+    path = "/api/v1/camera/avg-speed",
     summary = "Получение средней скорости",
     description = "Получение средней скорости автомобиля на конкретной камере",
     responses(

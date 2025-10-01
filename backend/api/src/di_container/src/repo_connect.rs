@@ -28,9 +28,9 @@ macro_rules! connect_repository {
 
 macro_rules! select_repository {
     (
-        $db:expr, 
-        $postgres_repo_type:ty, 
-        $clickhouse_repo_type:ty, 
+        $db:expr,
+        $postgres_repo_type:ty,
+        $clickhouse_repo_type:ty,
         $output_enum:path
     ) => {
         match $db {
@@ -152,20 +152,26 @@ impl DataContainer {
                 Some(snap_repo)
             }
             "user_repo" => {
-                let res = select_repository!(db, PgUserRepo, ClickHouseUserRepo, Repositories::UserRepo);
+                let res =
+                    select_repository!(db, PgUserRepo, ClickHouseUserRepo, Repositories::UserRepo);
 
                 log::info!("Sending UserRepository");
                 Some(res)
             }
             "camera_repo" => {
-                let res =
-                    select_repository!(db, PgCameraRepo, ClickHouseCameraRepo, Repositories::CameraRepo);
+                let res = select_repository!(
+                    db,
+                    PgCameraRepo,
+                    ClickHouseCameraRepo,
+                    Repositories::CameraRepo
+                );
 
                 log::info!("Sending CameraRepository");
                 Some(res)
             }
             "car_repo" => {
-                let res = select_repository!(db, PgCarRepo, ClickHouseCarRepo, Repositories::CarRepo);
+                let res =
+                    select_repository!(db, PgCarRepo, ClickHouseCarRepo, Repositories::CarRepo);
 
                 log::info!("Sending CarRepository");
                 Some(res)

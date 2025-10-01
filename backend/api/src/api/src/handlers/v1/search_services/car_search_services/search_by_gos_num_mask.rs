@@ -1,27 +1,28 @@
+use super::{CarSearcherResponse, SearchByGosNumRequest};
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
-use super::{SearchByPassportRequest, TrackInfoSearcherResponse};
 
-use crate::paths::TRACK_INFO_SEARCH_BY_PASSPORT_SERVICE_PATH as PATH;
+use crate::paths::CAR_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 
 use super::StatusResponse;
 
+#[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/track-info/search/by-passport",
-    summary = "Поиск отслеживаний",
-    description = "Поиск отслеживаний по паспортным данным",
-    request_body = SearchByPassportRequest,
+    path = "/api/v1/car/search/by-gos-num-mask",
+    summary = "Поиск автомобиля",
+    description = "Поиск автомобиля по маске гос.номера",
+    request_body = SearchByGosNumRequest,
     responses(
-        (status = StatusCode::OK, description = "Информация об отслеживании успешно найдена", body = TrackInfoSearcherResponse),
+        (status = StatusCode::OK, description = "Автомобили успешно найдены", body = CarSearcherResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
-    tags = ["search", "track-info"]
+    tags = ["search", "car"]
 )]
-pub async fn handle_search_track_info_by_passport(
-    ExtractJson(payload): ExtractJson<SearchByPassportRequest>,
-) -> Result<Json<TrackInfoSearcherResponse>, StatusCode> {
+pub async fn handle_search_car_by_gos_num_mask(
+    ExtractJson(payload): ExtractJson<SearchByGosNumRequest>,
+) -> Result<Json<CarSearcherResponse>, StatusCode> {
     let mut status = StatusResponse::new();
     log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
@@ -33,19 +34,16 @@ pub async fn handle_search_track_info_by_passport(
         }
     };
 
-    let response = match service
-        .search_track_info_by_owner_passport(&payload.passport)
-        .await
-    {
-        Ok(track_info) => TrackInfoSearcherResponse { status, track_info },
+    let response = match service.search_cars_by_gos_num_mask(&payload.gos_num).await {
+        Ok(cars) => CarSearcherResponse { status, cars },
         Err(e) => match e {
             ServiceError::InvalidDataError(e) => {
                 status.code =
                     ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
                 status.message = format!("Invalid {e}");
-                TrackInfoSearcherResponse {
+                CarSearcherResponse {
                     status,
-                    track_info: vec![],
+                    cars: vec![],
                 }
             }
             _ => return Err(StatusCode::INTERNAL_SERVER_ERROR),

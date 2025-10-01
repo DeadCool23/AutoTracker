@@ -9,7 +9,7 @@ use super::StatusResponse;
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/car/search/by-fio",
+    path = "/api/v1/car/search/by-fio",
     summary = "Поиск автомобиля",
     description = "Поиск автомобиля по ФИО владельца",
     request_body = SearchByFIORequest,

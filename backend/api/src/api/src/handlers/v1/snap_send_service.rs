@@ -36,7 +36,7 @@ pub struct SnapSendRequest {
 #[axum::debug_handler]
 #[utoipa::path(
     put,
-    path = "/snap/send",
+    path = "/api/v1/snap/send",
     summary = "Отравление снимка",
     description = "Отравление снимка автомобиля",
     request_body = SnapSendRequest,

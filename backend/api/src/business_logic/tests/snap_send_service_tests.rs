@@ -1,8 +1,11 @@
 mod snap_send_service_tests {
     use business_logic::services::snap_send_service::SnapSendService;
     use business_logic::services_traits::SnapSender;
-    use data_access::repositories::{mocked::MockSnapRepo, minimal::MapSnapRepository};
-    use models::{Camera, Location, objmother::{CameraMother, LocationMother}};
+    use data_access::repositories::{minimal::MapSnapRepository, mocked::MockSnapRepo};
+    use models::{
+        objmother::{CameraMother, LocationMother},
+        Camera, Location,
+    };
 
     #[tokio::test]
     async fn test_handle_snap_send_success() {

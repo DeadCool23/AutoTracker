@@ -55,6 +55,29 @@ pub struct User {
     pub passport: Option<Document>,
 }
 
+#[derive(Serialize, Deserialize, Debug, ToSchema, Clone, Default, PartialEq)]
+pub struct UserWithId {
+    #[schema(example = 1)]
+    pub id: usize,
+    #[schema(example = "Ivan")]
+    pub name: String,
+    #[schema(example = "Ivanov")]
+    pub surname: String,
+    #[schema(example = "Ivanovich")]
+    pub lastname: Option<String>,
+    #[schema(example = "email@example.ru")]
+    pub email: String,
+    #[schema(example = "user")]
+    pub role: Role,
+    #[schema(example = true)]
+    pub is_verified: bool,
+    #[schema(example = json!({
+        "serial": "1111",
+        "number": "111111"
+    }))]
+    pub passport: Option<Document>,
+}
+
 #[derive(Debug, ToSchema, Clone, Copy, Serialize, Deserialize, Default, PartialEq)]
 pub struct Location {
     #[schema(example = 53.9222)]

@@ -27,7 +27,7 @@ pub struct RouteResponse {
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/car/route",
+    path = "/api/v1/car/route",
     summary = "Получение маршрута",
     description = "Получение маршрута по гос.номеру и дате",
     request_body = RouteRequest,

@@ -1,4 +1,4 @@
-use super::ResponseStatusCode;
+use super::response_status_code::ResponseStatusCode;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

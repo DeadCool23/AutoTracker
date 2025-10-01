@@ -37,7 +37,12 @@ impl CarBuilder {
         }
     }
 
-    pub fn owner_fio(mut self, first_name: impl Into<String>, last_name: impl Into<String>, middle_name: Option<String>) -> Self {
+    pub fn owner_fio(
+        mut self,
+        first_name: impl Into<String>,
+        last_name: impl Into<String>,
+        middle_name: Option<String>,
+    ) -> Self {
         self.car.owner_fio = (first_name.into(), last_name.into(), middle_name);
         self
     }

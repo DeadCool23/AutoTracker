@@ -15,7 +15,7 @@ use super::camera_response::CameraResponse;
 #[utoipa::path(
     post,
     request_body = Location,
-    path = "/camera/by-location",
+    path = "/api/v1/camera/by-location",
     summary = "Получение камеры",
     description = "Получение камеры по координатам",
     responses(

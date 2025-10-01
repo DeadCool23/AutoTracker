@@ -14,7 +14,7 @@ pub struct SearchByFIORequest {
 
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct SearchByPassportRequest {
-    #[schema(example = json!({ 
+    #[schema(example = json!({
         "serial": "1111", 
         "number": "111111" 
     }))]

@@ -25,7 +25,7 @@ pub struct AuthResponse {
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/user/auth",
+    path = "/api/v1/user/auth",
     request_body = AuthRequest,
     summary = "Аутентификация",
     description = "Аутентификация пользователя по логину и паролю",

@@ -7,7 +7,7 @@ use super::StatusResponse;
 
 #[utoipa::path(
     post,
-    path = "/track-info/search/by-fio",
+    path = "/api/v1/track-info/search/by-fio",
     summary = "Поиск отслеживаний",
     description = "Поиск отслеживаний по ФИО пользователя",
     request_body = SearchByFIORequest,

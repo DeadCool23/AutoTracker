@@ -3,7 +3,7 @@ use data_access::{
     models::{Camera, Snap},
     repositories_traits::{CameraRepository, CarRepository},
 };
-use di_container::{Repositories, DataContainer};
+use di_container::{DataContainer, Repositories};
 use rand::{Rng, seq::IndexedRandom};
 
 const MAX_SPEED: u16 = 120;

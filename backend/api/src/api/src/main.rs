@@ -2,7 +2,6 @@ mod handlers;
 mod paths;
 mod router;
 
-
 #[tokio::main]
 async fn main() {
     logger::init(

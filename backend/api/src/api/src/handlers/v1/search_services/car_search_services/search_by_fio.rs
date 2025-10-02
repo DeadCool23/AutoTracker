@@ -1,7 +1,8 @@
 use super::{CarSearcherResponse, SearchByFIORequest};
 
+use super::VERSION;
 use super::{CoreServices, ServicesContainer};
-use crate::paths::CAR_SEARCH_BY_FIO_SERVICE_PATH as PATH;
+use crate::paths::{vpath, CAR_SEARCH_BY_FIO_SERVICE_PATH as PATH};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 
 use super::StatusResponse;
@@ -23,7 +24,11 @@ pub async fn handle_search_car_by_fio(
     ExtractJson(payload): ExtractJson<SearchByFIORequest>,
 ) -> Result<Json<CarSearcherResponse>, StatusCode> {
     let status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("searcher").await {
         Some(CoreServices::SearchService(s)) => s,

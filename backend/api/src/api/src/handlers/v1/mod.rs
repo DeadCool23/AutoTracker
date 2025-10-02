@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
 use utoipa::OpenApi;
-use utoipa::ToSchema;
 
 use models::Location;
 
@@ -45,6 +43,7 @@ use search_services::{
 };
 
 pub use super::response_status_code::{ResponseStatusCode, ResponseStatusCodeType};
+pub use super::response_without_data::ResponseWithoutData;
 pub use super::status_response::StatusResponse;
 
 pub mod auth_services;
@@ -53,12 +52,14 @@ pub mod route_get_service;
 pub mod search_services;
 pub mod snap_send_service;
 
+const VERSION: u8 = 1;
+
 #[derive(OpenApi)]
 #[openapi(
     info(
         title = "AUTOTRACKER API",
         version = "0.1.0",
-        description="API сервиса отслеживания марщрутов AutoTracker",
+        description="API сервиса отслеживания маршрутов AutoTracker",
     ),
     servers(
         (url = "http://127.0.0.1:9887", description = "Local server"),
@@ -109,9 +110,3 @@ pub mod snap_send_service;
     )
 )]
 pub struct ApiDoc;
-
-#[derive(ToSchema, Deserialize, Serialize, Debug)]
-pub struct ResponseWithoutData {
-    #[schema(example = json!({ "code": 0, "message": "OK" }))]
-    pub status: StatusResponse,
-}

@@ -1,6 +1,6 @@
 use super::error::DataAccessError;
 use super::repositories_traits;
-use models::{Camera, Car, Document, Location, Role, Snap, TrackInfo, User};
+use models::{Camera, Car, Document, Location, Role, Snap, TrackInfo, User, UserWithId};
 
 pub struct MockUserRepo;
 
@@ -13,6 +13,22 @@ impl repositories_traits::UserRepository for MockUserRepo {
         pswd: &str,
     ) -> Result<Option<User>, DataAccessError> {
         Ok(Some(User {
+            name: "mock_name".to_string(),
+            surname: "mock_surname".to_string(),
+            lastname: None,
+            email: email.to_string(),
+            passport: None,
+            role: Role::user,
+            is_verified: false,
+        }))
+    }
+    async fn get_user_with_id_by_auth_info(
+        &self,
+        email: &str,
+        pswd: &str,
+    ) -> Result<Option<UserWithId>, DataAccessError> {
+        Ok(Some(UserWithId {
+            id: 1,
             name: "mock_name".to_string(),
             surname: "mock_surname".to_string(),
             lastname: None,
@@ -43,6 +59,22 @@ impl repositories_traits::UserRepository for MockUserRepo {
             Ok(None)
         }
     }
+    async fn get_user_by_id(&self, id: usize) -> Result<Option<UserWithId>, DataAccessError> {
+        if id == id {
+            Ok(Some(UserWithId {
+                id,
+                name: "mock_name".to_string(),
+                surname: "mock_surname".to_string(),
+                lastname: None,
+                email: "exist@exist.com".to_string(),
+                passport: None,
+                role: Role::user,
+                is_verified: false,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
     async fn insert_user(&self, user: &User, pswd: &str) -> Result<(), DataAccessError> {
         if user.email == "exist@exist.com" {
             return Err(DataAccessError::InvalidInput("Exist".to_string()));
@@ -50,9 +82,16 @@ impl repositories_traits::UserRepository for MockUserRepo {
 
         Ok(())
     }
-    async fn update_user_passport(
+    async fn update_user_passport_by_email(
         &self,
         email: &String,
+        passport: &Document,
+    ) -> Result<(), DataAccessError> {
+        Ok(())
+    }
+    async fn update_user_passport_by_id(
+        &self,
+        id: usize,
         passport: &Document,
     ) -> Result<(), DataAccessError> {
         Ok(())

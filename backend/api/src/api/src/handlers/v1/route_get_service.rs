@@ -1,5 +1,6 @@
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
-use crate::paths::ROUTE_GET_SERVICE_PATH as PATH;
+use crate::paths::{vpath, ROUTE_GET_SERVICE_PATH as PATH};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::PointData;
 use serde::{Deserialize, Serialize};
@@ -41,7 +42,11 @@ pub async fn handle_route(
     ExtractJson(payload): ExtractJson<RouteRequest>,
 ) -> Result<Json<RouteResponse>, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("route_getter").await {
         Some(CoreServices::RouteGetService(s)) => s,

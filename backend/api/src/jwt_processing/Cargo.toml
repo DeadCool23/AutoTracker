@@ -1,0 +1,11 @@
+[package]
+name = "jwt_processing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+jsonwebtoken = { version = "10", features = ["aws_lc_rs"] }
+serde = { version = "1", features = ["derive"] }
+
+cfg = { path = "./../cfg" }
+models = { path = "./../models" }

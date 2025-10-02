@@ -1,7 +1,9 @@
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
 use super::{SearchByGosNumRequest, TrackInfoSearcherResponse};
-use crate::paths::TRACK_INFO_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH as PATH;
+
+use super::VERSION;
+use crate::paths::{vpath, TRACK_INFO_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH as PATH};
 
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 
@@ -23,7 +25,11 @@ pub async fn handle_search_track_info_by_gos_num_mask(
     ExtractJson(payload): ExtractJson<SearchByGosNumRequest>,
 ) -> Result<Json<TrackInfoSearcherResponse>, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("searcher").await {
         Some(CoreServices::SearchService(s)) => s,

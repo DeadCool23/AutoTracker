@@ -1,7 +1,8 @@
 use super::CarSearcherResponse;
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
-use crate::paths::TRACK_INFO_SEARCH_SERVICE_PATH as PATH;
+use crate::paths::{vpath, TRACK_INFO_SEARCH_SERVICE_PATH as PATH};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::Document;
 use serde::{Deserialize, Serialize};
@@ -39,7 +40,11 @@ pub async fn handle_search_cars_by_filters(
     ExtractJson(payload): ExtractJson<SearchCarByFilterRequest>,
 ) -> Result<Json<CarSearcherResponse>, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("searcher").await {
         Some(CoreServices::SearchService(s)) => s,

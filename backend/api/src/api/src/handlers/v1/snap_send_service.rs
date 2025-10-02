@@ -1,6 +1,7 @@
 use super::ResponseWithoutData;
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
-use crate::paths::SNAP_SEND_SERVICE_PATH as PATH;
+use crate::paths::{vpath, SNAP_SEND_SERVICE_PATH as PATH};
 use axum::{
     extract::Json as ExtractJson,
     http::StatusCode,
@@ -51,7 +52,11 @@ pub async fn handle_snap_send(
     ExtractJson(payload): ExtractJson<SnapSendRequest>,
 ) -> Result<Response, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("snap_sender").await {
         Some(CoreServices::SnapSendService(s)) => s,

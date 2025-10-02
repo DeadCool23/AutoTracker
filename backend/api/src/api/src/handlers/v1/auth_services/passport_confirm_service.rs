@@ -1,5 +1,6 @@
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
-use crate::paths::PASSPORT_CONF_SERVICE_PATH as PATH;
+use crate::paths::{vpath, PASSPORT_CONF_SERVICE_PATH as PATH};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::Document;
 use serde::{Deserialize, Serialize};
@@ -18,8 +19,8 @@ pub struct PassportConfRequest {
 #[utoipa::path(
     post,
     path = "/api/v1/user/passport-confirm",
-    summary = "Подтверждениее пасспортных данных",
-    description = "Подтверждениее пасспортных данных пользователя",
+    summary = "Подтверждение паспортных данных",
+    description = "Подтверждение паспортных данных пользователя",
     request_body = PassportConfRequest,
     responses(
         (status = StatusCode::OK, description = "Пользователь успешно обновил паспортные данные", body = ResponseWithoutData),
@@ -31,7 +32,11 @@ pub async fn handle_passport_conf(
     ExtractJson(payload): ExtractJson<PassportConfRequest>,
 ) -> Result<Json<ResponseWithoutData>, StatusCode> {
     let mut status = StatusResponse::new();
-    println!("Received request from {}: {:?}", PATH.as_str(), payload);
+    println!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("auther").await {
         Some(CoreServices::AuthService(s)) => s,

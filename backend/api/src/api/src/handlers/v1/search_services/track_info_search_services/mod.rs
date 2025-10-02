@@ -1,5 +1,6 @@
 use super::search_requests::*;
 use super::StatusResponse;
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
 use models::TrackInfo;

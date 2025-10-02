@@ -1,6 +1,6 @@
 use super::error::DataAccessError;
 use async_trait::async_trait;
-use models::{Camera, Car, Document, Location, Snap, TrackInfo, User};
+use models::{Camera, Car, Document, Location, Snap, TrackInfo, User, UserWithId};
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {
@@ -9,15 +9,26 @@ pub trait UserRepository: Send + Sync {
         email: &str,
         pswd: &str,
     ) -> Result<Option<User>, DataAccessError>;
+    async fn get_user_with_id_by_auth_info(
+        &self,
+        email: &str,
+        pswd: &str,
+    ) -> Result<Option<UserWithId>, DataAccessError>;
     async fn get_user_by_passport(
         &self,
         passport: &Document,
     ) -> Result<Option<User>, DataAccessError>;
     async fn get_user_by_email(&self, email: &str) -> Result<Option<User>, DataAccessError>;
+    async fn get_user_by_id(&self, id: usize) -> Result<Option<UserWithId>, DataAccessError>;
     async fn insert_user(&self, user: &User, pswd: &str) -> Result<(), DataAccessError>;
-    async fn update_user_passport(
+    async fn update_user_passport_by_email(
         &self,
         email: &String,
+        passport: &Document,
+    ) -> Result<(), DataAccessError>;
+    async fn update_user_passport_by_id(
+        &self,
+        id: usize,
         passport: &Document,
     ) -> Result<(), DataAccessError>;
 }

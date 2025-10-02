@@ -1,7 +1,6 @@
-pub mod camera_get_by_cords_service;
-pub mod camera_get_by_id_service;
-pub mod camera_response;
-pub mod get_avg_speed_service;
+pub mod auth_service;
+pub mod passport_confirm_service;
+// pub mod registration_service;
 
 use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};

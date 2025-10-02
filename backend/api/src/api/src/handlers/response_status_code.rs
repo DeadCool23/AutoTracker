@@ -26,6 +26,7 @@ pub enum ResponseStatusCode {
 
     EMAIL_EXIST = 3001,
     EMAIL_NOT_FOUNDED = 3002,
+    USER_ID_NOT_FOUNDED = 3003,
 
     CAMERA_NOT_FOUNDED = 4002,
     AVG_SPEED_NOT_FOUNDED = 4003,
@@ -59,6 +60,7 @@ impl ResponseStatusCode {
 
     fn from_not_founded_data(err: &str) -> Self {
         match err {
+            "user_id" => ResponseStatusCode::USER_ID_NOT_FOUNDED,
             "email" => ResponseStatusCode::EMAIL_NOT_FOUNDED,
             "camera" => ResponseStatusCode::CAMERA_NOT_FOUNDED,
             "average speed" => ResponseStatusCode::AVG_SPEED_NOT_FOUNDED,

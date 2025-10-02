@@ -1,7 +1,7 @@
 use super::error::ServiceError;
 use async_trait::async_trait;
 
-use models::{Camera, Car, Document, Location, PointData, TrackInfo, User};
+use models::{Camera, Car, Document, Location, PointData, TrackInfo, User, UserWithId};
 
 // # Сервис авторизации
 // ===========================================
@@ -9,6 +9,8 @@ use models::{Camera, Car, Document, Location, PointData, TrackInfo, User};
 #[async_trait]
 pub trait Authorizer: Send + Sync {
     async fn auth(&self, email: &String, pswd: &String) -> Result<User, ServiceError>;
+    async fn auth_with_id(&self, email: &String, pswd: &String)
+        -> Result<UserWithId, ServiceError>;
     async fn register(
         &self,
         firstname: &String,
@@ -21,6 +23,11 @@ pub trait Authorizer: Send + Sync {
     async fn passport_confirm(
         &self,
         email: &String,
+        passport: &Document,
+    ) -> Result<(), ServiceError>;
+    async fn passport_confirm_by_id(
+        &self,
+        id: usize,
         passport: &Document,
     ) -> Result<(), ServiceError>;
 }

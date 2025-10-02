@@ -1,6 +1,5 @@
-use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
-use crate::paths::{vpath, REG_SERVICE_PATH as PATH};
+use crate::paths::REG_SERVICE_PATH as PATH;
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -26,7 +25,7 @@ pub struct RegRequest {
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/api/v1/user/registr",
+    path = "/api/v2/users/registr",
     summary = "Регистрация",
     description = "Регистрация нового пользователя",
     request_body = RegRequest,
@@ -40,11 +39,7 @@ pub async fn handle_reg(
     ExtractJson(payload): ExtractJson<RegRequest>,
 ) -> Result<Json<ResponseWithoutData>, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!(
-        "Received request from {}: {:?}",
-        vpath(VERSION, PATH.as_str()),
-        payload
-    );
+    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
 
     let service = match ServicesContainer::get("auther").await {
         Some(CoreServices::AuthService(s)) => s,

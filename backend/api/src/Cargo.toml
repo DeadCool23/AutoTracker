@@ -10,5 +10,6 @@ members = [
     "snap_insertions",
     "logger",
     "snap_insert_mes",
-    "snaps_gen"
+    "snaps_gen",
+    "jwt_processing"
 ]

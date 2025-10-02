@@ -1,6 +1,9 @@
 use super::{CoreServices, ServicesContainer};
 use super::{SearchByFIORequest, TrackInfoSearcherResponse};
-use crate::paths::TRACK_INFO_SEARCH_BY_FIO_SERVICE_PATH as PATH;
+
+use super::VERSION;
+use crate::paths::{vpath, TRACK_INFO_SEARCH_BY_FIO_SERVICE_PATH as PATH};
+
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 
 use super::StatusResponse;
@@ -21,7 +24,11 @@ pub async fn handle_search_track_info_by_fio(
     ExtractJson(payload): ExtractJson<SearchByFIORequest>,
 ) -> Result<Json<TrackInfoSearcherResponse>, StatusCode> {
     let status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("searcher").await {
         Some(CoreServices::SearchService(s)) => s,

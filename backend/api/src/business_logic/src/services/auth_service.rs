@@ -2,7 +2,7 @@ use crate::error::ServiceError;
 use crate::services_traits::Authorizer;
 use async_trait::async_trait;
 use data_access::repositories_traits::UserRepository;
-use models::{Document, Role, User};
+use models::{Document, Role, User, UserWithId};
 
 use super::validator::Validator;
 
@@ -39,6 +39,46 @@ impl Authorizer for AuthService {
         }
 
         let res = self.user_repo.get_user_by_auth_info(email, pswd).await?;
+
+        match res {
+            Some(user) => {
+                log::info!("Successful authentication for email: {}", email);
+                Ok(user)
+            }
+            None => {
+                log::warn!("Failed authentication attempt for email: {}", email);
+                Err(ServiceError::InvalidDataError(
+                    "email or password".to_string(),
+                ))
+            }
+        }
+    }
+
+    async fn auth_with_id(
+        &self,
+        email: &String,
+        pswd: &String,
+    ) -> Result<UserWithId, ServiceError> {
+        log::info!("Attempting authentication for email: {}", email);
+
+        if !Validator::is_valid_email(email) {
+            log::warn!("Invalid email format: {}", email);
+            return Err(ServiceError::InvalidDataError(
+                "email or password".to_string(),
+            ));
+        }
+
+        if !Validator::is_valid_password(pswd) {
+            log::warn!("Invalid password format for email: {}", email);
+            return Err(ServiceError::InvalidDataError(
+                "email or password".to_string(),
+            ));
+        }
+
+        let res = self
+            .user_repo
+            .get_user_with_id_by_auth_info(email, pswd)
+            .await?;
 
         match res {
             Some(user) => {
@@ -150,8 +190,51 @@ impl Authorizer for AuthService {
             None => {}
         }
 
-        self.user_repo.update_user_passport(email, passport).await?;
+        self.user_repo
+            .update_user_passport_by_email(email, passport)
+            .await?;
         log::info!("Successfully updated passport for user: {}", email);
+        Ok(())
+    }
+
+    async fn passport_confirm_by_id(
+        &self,
+        id: usize,
+        passport: &Document,
+    ) -> Result<(), ServiceError> {
+        log::info!("Starting passport confirmation for id: {}", id);
+
+        if !Validator::is_valid_passport(passport) {
+            log::warn!("Invalid passport data for id: {}", id);
+            return Err(ServiceError::InvalidDataError("passport".to_string()));
+        }
+
+        match self.user_repo.get_user_by_id(id).await? {
+            Some(_) => {}
+            None => {
+                log::warn!(
+                    "Passport confirmation attempt for non-existent user: {}",
+                    id
+                );
+                return Err(ServiceError::NotFoundError("user_id".to_string()));
+            }
+        }
+
+        match self.user_repo.get_user_by_passport(passport).await? {
+            Some(_) => {
+                log::warn!(
+                    "Passport confirm attempt whith exiting passport: {:#?}",
+                    passport
+                );
+                return Err(ServiceError::IsExistError("passport".to_string()));
+            }
+            None => {}
+        }
+
+        self.user_repo
+            .update_user_passport_by_id(id, passport)
+            .await?;
+        log::info!("Successfully updated passport for user: {}", id);
         Ok(())
     }
 }

@@ -1,6 +1,7 @@
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
-use crate::paths::CAMERA_GET_BY_CORDS_SERVICE_PATH as PATH;
+use crate::paths::{vpath, CAMERA_GET_BY_CORDS_SERVICE_PATH as PATH};
 use axum::{
     extract::Json as ExtractJson,
     http::StatusCode,
@@ -35,7 +36,11 @@ pub async fn handle_get_camera_by_cords(
     ExtractJson(payload): ExtractJson<Location>,
 ) -> Result<Response, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("camera_data_getter").await {
         Some(CoreServices::CameraDataGetService(s)) => s,

@@ -1,6 +1,7 @@
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
-use crate::paths::GET_AVG_SPEED_ON_CAMERA_PATH as PATH;
+use crate::paths::{vpath, GET_AVG_SPEED_ON_CAMERA_PATH as PATH};
 use axum::{
     extract::Json as ExtractJson,
     http::StatusCode,
@@ -50,7 +51,11 @@ pub async fn handle_get_avg_speed_for_car_on_camera(
     ExtractJson(payload): ExtractJson<AvgSpeedRequest>,
 ) -> Result<Response, StatusCode> {
     let mut status = StatusResponse::new();
-    log::info!("Received request from {}: {:?}", PATH.as_str(), payload);
+    log::info!(
+        "Received request from {}: {:?}",
+        vpath(VERSION, PATH.as_str()),
+        payload
+    );
 
     let service = match ServicesContainer::get("camera_data_getter").await {
         Some(CoreServices::CameraDataGetService(s)) => s,

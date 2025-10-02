@@ -2,8 +2,8 @@ use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, StatusResponse};
 use crate::paths::{vpath, AUTH_SERVICE_PATH as PATH};
+use axum::response::{IntoResponse, Response};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
-use models::User;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -17,28 +17,25 @@ pub struct AuthRequest {
 
 #[derive(ToSchema, Deserialize, Serialize, Debug)]
 pub struct AuthResponse {
-    #[schema(example = json!({ "code": 0, "message": "OK" }))]
-    pub status: StatusResponse,
-    #[schema(value_type=User)]
-    pub user: Option<User>,
+    #[schema(example = "jwt-example")]
+    pub jwt: String,
 }
 
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/api/v1/user/auth",
+    path = "/api/v2/users/auth",
     request_body = AuthRequest,
     summary = "Аутентификация",
     description = "Аутентификация пользователя по логину и паролю",
     responses(
-        (status = StatusCode::OK, description = "Пользователь успешно авторизирован", body = AuthResponse),
+        (status = StatusCode::OK, description = "Пользователь успешно авторизирован", body = String),
+        (status = StatusCode::BAD_REQUEST, description = "Невалидные данные", body = StatusResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
     tags = ["auth"]
 )]
-pub async fn handle_auth(
-    ExtractJson(payload): ExtractJson<AuthRequest>,
-) -> Result<Json<AuthResponse>, StatusCode> {
+pub async fn handle_auth_v2(ExtractJson(payload): ExtractJson<AuthRequest>) -> Response {
     let mut status = StatusResponse::new();
     log::info!(
         "Received request from {}: {:?}",
@@ -50,30 +47,29 @@ pub async fn handle_auth(
         Some(CoreServices::AuthService(s)) => s,
         _ => {
             log::warn!("Can't get AuthService");
-            return Err(StatusCode::INTERNAL_SERVER_ERROR);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
 
-    let user = match service.auth(&payload.email, &payload.pswd).await {
+    let user = match service.auth_with_id(&payload.email, &payload.pswd).await {
         Ok(user) => user,
         Err(e) => match e {
             ServiceError::InvalidDataError(e) => {
                 status.code = ResponseStatusCode::INVALID_AUTH_DATA as isize;
                 status.message = format!("Invalid {e}");
-                let response = AuthResponse { status, user: None };
-                log::warn!("Sended error response {:#?}", response);
+                log::warn!("Sended error response {:#?}", status);
 
-                return Ok(Json(response));
+                return (StatusCode::BAD_REQUEST, Json(status)).into_response();
             }
-            _ => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+            _ => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
         },
     };
 
-    let response = AuthResponse {
-        status,
-        user: Some(user),
+    let response = match jwt_processing::create_jwt(&user) {
+        Ok(token) => token,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
     log::info!("Sended response {:#?}", response);
 
-    Ok(Json(response))
+    response.into_response()
 }

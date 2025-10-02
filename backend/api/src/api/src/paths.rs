@@ -1,7 +1,11 @@
 use lazy_static::lazy_static;
 
-pub fn api_vpath(version: u8) -> String {
+fn api_vpath(version: u8) -> String {
     format!("/api/v{version}")
+}
+
+pub fn vpath(version: u8, path: &str) -> String {
+    format!("{}{}", api_vpath(version), path)
 }
 
 lazy_static! {
@@ -51,4 +55,17 @@ lazy_static! {
     pub static ref TRACK_INFO_SEARCH_BY_DATE_SERVICE_PATH: String = format!("{}/by-date", TRACK_INFO_SEARCH_SERVICE_PATH.as_str());
     pub static ref TRACK_INFO_SEARCH_BY_PASSPORT_SERVICE_PATH: String = format!("{}/by-passport", TRACK_INFO_SEARCH_SERVICE_PATH.as_str());
     pub static ref TRACK_INFO_SEARCH_BY_GOS_NUM_MASK_SERVICE_PATH: String = format!("{}/by-gos-num-mask", TRACK_INFO_SEARCH_SERVICE_PATH.as_str());
+
+    // Main paths v2
+    pub static ref CARS_PATH: String = "/cars".to_string();
+    pub static ref USERS_PATH: String = "/users".to_string();
+    pub static ref SNAPS_PATH: String = "/snaps".to_string();
+    pub static ref CAMERAS_PATH: String = "/cameras".to_string();
+    pub static ref TRACK_INFOS_PATH: String = "/track-infos".to_string();
+
+    // Auth path v2
+    pub static ref AUTH_SERVICE_V2_PATH: String = format!("{}/auth", USERS_PATH.as_str());
+    pub static ref REG_SERVICE_V2_PATH: String = format!("{}/registr", USERS_PATH.as_str());
+    pub static ref PASSPORT_CONF_SERVICE_V2_PATH: String =
+        format!("{}/{{id}}/passport", USERS_PATH.as_str());
 }

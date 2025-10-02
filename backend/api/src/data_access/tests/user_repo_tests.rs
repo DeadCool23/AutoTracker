@@ -32,7 +32,7 @@ mod user_repo_tests {
         let repo = PgUserRepo::from(&PG_URL).await.unwrap();
 
         let res = repo
-            .update_user_passport(
+            .update_user_passport_by_email(
                 &"undefined@undefined.com".to_string(),
                 &Document {
                     serial: "1111".to_string(),
@@ -54,7 +54,7 @@ mod user_repo_tests {
         };
         let repo = PgUserRepo::from(&PG_URL).await.unwrap();
 
-        let res = repo.update_user_passport(&email, &passport).await;
+        let res = repo.update_user_passport_by_email(&email, &passport).await;
 
         println!("{:#?}", res);
         assert!(res.is_ok());
@@ -105,7 +105,7 @@ mod user_repo_tests {
         let repo = ClickHouseUserRepo::from(&CLICKHOUSE_URL).await.unwrap();
 
         let res = repo
-            .update_user_passport(
+            .update_user_passport_by_email(
                 &"undefined@undefined.com".to_string(),
                 &Document {
                     serial: "1111".to_string(),
@@ -127,7 +127,7 @@ mod user_repo_tests {
         };
         let repo = ClickHouseUserRepo::from(&CLICKHOUSE_URL).await.unwrap();
 
-        let res = repo.update_user_passport(&email, &passport).await;
+        let res = repo.update_user_passport_by_email(&email, &passport).await;
 
         println!("{:#?}", res);
         assert!(res.is_ok());

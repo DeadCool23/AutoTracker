@@ -1,7 +1,7 @@
 use crate::error::DataAccessError;
 use crate::repositories_traits::UserRepository;
 use async_trait::async_trait;
-use models::{Document, Role, User};
+use models::{Document, Role, User, UserWithId};
 use sqlx::{
     postgres::{PgPoolOptions, PgRow},
     PgPool, Row,
@@ -58,6 +58,37 @@ impl PgUserRepo {
         log::debug!("Converted user: {:?}", user);
         user
     }
+
+    fn form_row_to_user_with_id(row: &PgRow) -> UserWithId {
+        log::debug!("Converting database row to User");
+        let user_id: i32 = row.get("id");
+        let passport_serial: Option<i32> = row.get("passport_serial");
+        let passport_num: Option<i32> = row.get("passport_num");
+
+        let user = UserWithId {
+            id: user_id as usize,
+            name: row.get("name"),
+            surname: row.get("surname"),
+            lastname: row.get("lastname"),
+            email: row.get("login"),
+            role: match row.get::<String, _>("role").as_str() {
+                "user" => Role::user,
+                "operator" => Role::operator,
+                "audit" => Role::audit,
+                _ => Role::user,
+            },
+            is_verified: row.get("is_verified"),
+            passport: match (passport_serial, passport_num) {
+                (Some(serial), Some(num)) => Some(Document {
+                    serial: format!("{:0>4}", serial.to_string()),
+                    number: format!("{:0>6}", num.to_string()),
+                }),
+                _ => None,
+            },
+        };
+        log::debug!("Converted user: {:?}", user);
+        user
+    }
 }
 
 #[async_trait]
@@ -85,6 +116,37 @@ impl UserRepository for PgUserRepo {
             Some(row) => {
                 log::info!("User authenticated successfully: {}", email);
                 Ok(Some(Self::form_row_to_user(&row)))
+            }
+            None => {
+                log::warn!("Authentication failed for user: {}", email);
+                Ok(None)
+            }
+        }
+    }
+
+    async fn get_user_with_id_by_auth_info(
+        &self,
+        email: &str,
+        password: &str,
+    ) -> Result<Option<UserWithId>, DataAccessError> {
+        log::info!("Authenticating user with email: {}", email);
+        let query = "SELECT * FROM AppUser WHERE login = $1 AND password = $2 LIMIT 1";
+        log::debug!("Executing auth query: {}", query);
+
+        let row = sqlx::query(query)
+            .bind(email)
+            .bind(password)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Authentication query failed for {}: {}", email, e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        match row {
+            Some(row) => {
+                log::info!("User authenticated successfully: {}", email);
+                Ok(Some(Self::form_row_to_user_with_id(&row)))
             }
             None => {
                 log::warn!("Authentication failed for user: {}", email);
@@ -158,6 +220,32 @@ impl UserRepository for PgUserRepo {
         }
     }
 
+    async fn get_user_by_id(&self, id: usize) -> Result<Option<UserWithId>, DataAccessError> {
+        log::info!("Getting user by id: {}", id);
+        let query = "SELECT * FROM AppUser WHERE id = $1 LIMIT 1";
+        log::debug!("Executing query: {}", query);
+
+        let row = sqlx::query(query)
+            .bind(id as i32)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Query failed for id {}: {}", id, e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        match row {
+            Some(row) => {
+                log::info!("User found: {}", id);
+                Ok(Some(Self::form_row_to_user_with_id(&row)))
+            }
+            None => {
+                log::info!("User not found: {}", id);
+                Ok(None)
+            }
+        }
+    }
+
     async fn insert_user(&self, user: &User, password: &str) -> Result<(), DataAccessError> {
         log::info!("Inserting new user: {}", user.email);
         let (passport_serial, passport_num) = match &user.passport {
@@ -208,7 +296,7 @@ impl UserRepository for PgUserRepo {
         Ok(())
     }
 
-    async fn update_user_passport(
+    async fn update_user_passport_by_email(
         &self,
         email: &String,
         passport: &Document,
@@ -246,6 +334,51 @@ impl UserRepository for PgUserRepo {
             })?;
 
         log::info!("Passport updated successfully for user: {}", email);
+        Ok(())
+    }
+
+    async fn update_user_passport_by_id(
+        &self,
+        id: usize,
+        passport: &Document,
+    ) -> Result<(), DataAccessError> {
+        log::info!("Updating passport for user: {}", id);
+        let serial = passport.serial.parse::<i32>().map_err(|_| {
+            log::error!(
+                "Invalid passport serial format for user {}: {}",
+                id,
+                passport.serial
+            );
+            DataAccessError::InvalidInput("Invalid passport serial format".to_string())
+        })?;
+        let number = passport.number.parse::<i32>().map_err(|_| {
+            log::error!(
+                "Invalid passport number format for user {}: {}",
+                id,
+                passport.number
+            );
+            DataAccessError::InvalidInput("Invalid passport number format".to_string())
+        })?;
+
+        let query = "UPDATE AppUser
+        SET is_verified = TRUE,
+            passport_serial = $2,
+            passport_num = $3
+        WHERE id = $1;";
+        log::debug!("Executing stored procedure: {}", query);
+
+        sqlx::query(query)
+            .bind(id as i32)
+            .bind(serial)
+            .bind(number)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Failed to update passport for user {}: {}", id, e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        log::info!("Passport updated successfully for user: {}", id);
         Ok(())
     }
 }

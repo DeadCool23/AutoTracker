@@ -1,7 +1,8 @@
 use super::camera_response::CameraResponse;
+use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
-use crate::paths::CAMERA_GET_BY_ID_SERVICE_PATH as PATH;
+use crate::paths::{vpath, CAMERA_GET_BY_ID_SERVICE_PATH as PATH};
 use axum::{
     extract::Path,
     http::StatusCode,
@@ -32,7 +33,7 @@ pub async fn handle_get_camera_by_id(Path(id): Path<i64>) -> Result<Response, St
     let mut status = StatusResponse::new();
     log::info!(
         "Received request from {}: {{ id: {:?} }}",
-        PATH.as_str(),
+        vpath(VERSION, PATH.as_str()),
         id
     );
 

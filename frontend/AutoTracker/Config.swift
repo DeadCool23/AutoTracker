@@ -6,7 +6,9 @@ let APIUrl: String = {
           let apiUrl = dict["APIUrl"] as? String else {
         fatalError("APIUrl not found in ApiConfig.plist")
     }
-    return apiUrl
+    
+    let version = (dict["version"] as? Int) ?? 1
+    return "\(apiUrl)/api/v\(version)"
 }()
 
 let headerHeight: CGFloat = 100

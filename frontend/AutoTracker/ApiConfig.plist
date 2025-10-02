@@ -4,5 +4,7 @@
 <dict>
 	<key>APIUrl</key>
 	<string>http://127.0.0.1:9887</string>
+	<key>version</key>
+	<integer>1</integer>
 </dict>
 </plist>

@@ -14,7 +14,7 @@ mod route_get_service_tests {
         );
 
         let res = service
-            .get_car_route(
+            .get_car_route_with_user_email(
                 &"А777МР77".to_string(),
                 &"exist@exist.com".to_string(),
                 &"01.01.2025".to_string(),
@@ -33,7 +33,7 @@ mod route_get_service_tests {
         );
 
         let res = service
-            .get_car_route(
+            .get_car_route_with_user_email(
                 &"А777МР77".to_string(),
                 &"example@example.com".to_string(),
                 &"0101.2025".to_string(),
@@ -53,7 +53,7 @@ mod route_get_service_tests {
         );
 
         let res = service
-            .get_car_route(
+            .get_car_route_with_user_email(
                 &"А777Р77".to_string(),
                 &"example@example.com".to_string(),
                 &"01.01.2025".to_string(),
@@ -73,7 +73,7 @@ mod route_get_service_tests {
         );
 
         let res = service
-            .get_car_route(
+            .get_car_route_with_user_email(
                 &"А777МР77".to_string(),
                 &"aexample.com".to_string(),
                 &"01.01.2025".to_string(),

@@ -1,6 +1,8 @@
 pub mod auth_service;
 pub mod passport_confirm_service;
-// pub mod registration_service;
+pub mod registration_service;
+pub mod user_delete_service;
+pub mod user_get_service;
 
 use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};

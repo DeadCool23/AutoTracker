@@ -142,7 +142,7 @@ impl PgTrackInfoRepo {
 
 #[async_trait]
 impl TrackInfoRepository for PgTrackInfoRepo {
-    async fn insert_track_info(
+    async fn insert_track_info_by_user_email(
         &self,
         gos_num: &str,
         user_login: &str,
@@ -199,6 +199,61 @@ impl TrackInfoRepository for PgTrackInfoRepo {
         Ok(())
     }
 
+    async fn insert_track_info_by_user_id(
+        &self,
+        gos_num: &str,
+        user_id: usize,
+        route_date: &str,
+    ) -> Result<(), DataAccessError> {
+        log::info!(
+            "Inserting track info for vehicle {} by user {} on date {}",
+            gos_num,
+            user_id,
+            route_date
+        );
+
+        let date = NaiveDate::parse_from_str(route_date, "%d.%m.%Y").map_err(|e| {
+            log::error!("Invalid date format: {}", e);
+            DataAccessError::InvalidInput(e.to_string())
+        })?;
+
+        let moscow_time = Utc::now() + chrono::Duration::hours(3);
+        let moscow_naive = moscow_time.naive_utc();
+        log::debug!("Current Moscow time: {}", moscow_naive);
+
+        let query = "
+            INSERT INTO TrackInfo (car_id, user_id, route_date, track_time)
+            SELECT 
+                c.id, 
+                $1, 
+                $2,
+                $3
+            FROM 
+                Car c
+            JOIN 
+                STS s ON s.car_id = c.id
+            WHERE 
+                s.gos_num = $4
+            LIMIT 1;
+        ";
+        log::debug!("Executing insert query: {}", query);
+
+        sqlx::query(query)
+            .bind(user_id as i32)
+            .bind(date)
+            .bind(moscow_naive)
+            .bind(gos_num)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Failed to insert track info: {}", e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        log::info!("Successfully inserted track info");
+        Ok(())
+    }
+
     async fn get_tracks_info_by_filters(
         &self,
         firstname: Option<&str>,
@@ -221,7 +276,7 @@ impl TrackInfoRepository for PgTrackInfoRepo {
 
         gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
 
-        let query = "SELECT * FROM get_tracks_info($1, $2, $3, $4, $5, $6, $7)";
+        let query = "SELECT * FROM get_tracks_info($1, $2, $3, $4, $5, $6, $7) ORDER BY route_date";
         log::debug!("Executing query: {}", query);
 
         let sdate = match &date {
@@ -256,6 +311,82 @@ impl TrackInfoRepository for PgTrackInfoRepo {
             .bind(transformed_gos_num)
             .bind(pserial)
             .bind(pnumber)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        log::info!("Found {} track info records by filters", rows.len());
+        Ok(Self::form_rows_to_track_infos(&rows))
+    }
+
+    async fn get_tracks_info_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        date: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<TrackInfo>, DataAccessError> {
+        let transformed_gos_num = gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
+        log::info!(
+            "Searching track info records by filters: {:?} {:?} {:?} {:?} {:?} {:?}",
+            firstname,
+            surname,
+            lastname,
+            passport,
+            transformed_gos_num,
+            date,
+        );
+
+        gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
+
+        let query = "
+        SELECT * FROM get_tracks_info($1, $2, $3, $4, $5, $6, $7)
+        ORDER BY route_date
+        LIMIT $8 OFFSET $9
+        ";
+        log::debug!("Executing query: {}", query);
+
+        let sdate = match &date {
+            Some(dt) => Some(NaiveDate::parse_from_str(dt, "%d.%m.%Y").map_err(|e| {
+                log::error!("Invalid date format: {}", e);
+                DataAccessError::InvalidInput(e.to_string())
+            })?),
+            None => None,
+        };
+
+        let pserial = match &passport {
+            Some(psprt) => Some(psprt.serial.clone().parse::<i32>().map_err(|_| {
+                log::error!("Invalid passport serial format: {}", &psprt.serial);
+                DataAccessError::InvalidInput("Invalid passport serial format".to_string())
+            })?),
+            None => None,
+        };
+
+        let pnumber = match &passport {
+            Some(psprt) => Some(psprt.number.clone().parse::<i32>().map_err(|_| {
+                log::error!("Invalid passport number format: {}", &psprt.number);
+                DataAccessError::InvalidInput("Invalid passport number format".to_string())
+            })?),
+            None => None,
+        };
+
+        let rows = sqlx::query(query)
+            .bind(firstname)
+            .bind(surname)
+            .bind(lastname)
+            .bind(sdate)
+            .bind(transformed_gos_num)
+            .bind(pserial)
+            .bind(pnumber)
+            .bind(limit as i32)
+            .bind(offset as i32)
             .fetch_all(&self.pool)
             .await
             .map_err(|e| {

@@ -1,11 +1,11 @@
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::OpenApi;
 
-pub use di_container::error::ServiceError;
-pub use di_container::{CoreServices, ServicesContainer};
+use di_container::error::ServiceError;
+use di_container::{CoreServices, ServicesContainer};
+use models::{Document, UserWithId, PointData};
 
 pub use super::response_status_code::{ResponseStatusCode, ResponseStatusCodeType};
-pub use super::response_without_data::ResponseWithoutData;
 pub use super::status_response::StatusResponse;
 
 mod token_auth;
@@ -14,7 +14,24 @@ pub mod auth_services;
 use auth_services::{
     auth_service::{AuthRequest, AuthResponse, __path_handle_auth_v2},
     passport_confirm_service::__path_handle_passport_conf_v2,
+    registration_service::{RegRequest, __path_handle_reg_v2},
+    user_delete_service::__path_handle_delete_user_by_id_v2,
+    user_get_service::__path_handle_get_user_by_id_v2,
 };
+
+pub mod search_services;
+use search_services::{
+    car_search_service::{
+        CarSearcherResponse, SearchCarsRequest, __path_handle_search_cars_by_filters_with_offset_v2,
+    },
+    track_info_search_service::{
+        SearchTrackInfoByFilterRequest, TrackInfoSearcherResponse,
+        __path_handle_search_track_info_by_filters_with_offset_v2,
+    },
+};
+
+pub mod route_get_service;
+use route_get_service::{RouteRequest, __path_handle_route_v2};
 
 const VERSION: u8 = 2;
 
@@ -36,19 +53,30 @@ const VERSION: u8 = 2;
     modifiers(&SecurityAddon),
     paths(
         handle_auth_v2,
-        handle_passport_conf_v2
+        handle_passport_conf_v2,
+        handle_reg_v2,
+        handle_get_user_by_id_v2,
+        handle_delete_user_by_id_v2,
+
+        handle_search_cars_by_filters_with_offset_v2,
+        handle_search_track_info_by_filters_with_offset_v2,
+
+        handle_route_v2,
     ),
     components(schemas(
-        AuthRequest, AuthResponse, ResponseWithoutData
-
+        AuthRequest, AuthResponse,
+        Document, RegRequest, UserWithId,
+        SearchCarsRequest, CarSearcherResponse,
+        TrackInfoSearcherResponse, SearchTrackInfoByFilterRequest,
+        RouteRequest, PointData,
+        StatusResponse,
     )),
     tags(
         (name = "route", description = "Получение маршрута"),
         (name = "auth", description = "Авторизация"),
-        (name = "snap", description = "Снимки"),
+        (name = "user", description = "Пользователь"),
         (name = "search", description = "Поисковик"),
         (name = "car", description = "Автомобили"),
-        (name = "camera", description = "Камера"),
         (name = "track-info", description = "Информация об отслеживании"),
     )
 )]

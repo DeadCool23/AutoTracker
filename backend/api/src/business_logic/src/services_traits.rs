@@ -8,9 +8,14 @@ use models::{Camera, Car, Document, Location, PointData, TrackInfo, User, UserWi
 
 #[async_trait]
 pub trait Authorizer: Send + Sync {
+    async fn get_user_by_id(&self, id: usize) -> Result<UserWithId, ServiceError>;
+
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), ServiceError>;
+
     async fn auth(&self, email: &String, pswd: &String) -> Result<User, ServiceError>;
     async fn auth_with_id(&self, email: &String, pswd: &String)
         -> Result<UserWithId, ServiceError>;
+
     async fn register(
         &self,
         firstname: &String,
@@ -20,6 +25,15 @@ pub trait Authorizer: Send + Sync {
         pswd: &String,
         rep_pswd: &String,
     ) -> Result<(), ServiceError>;
+    async fn register_without_pswd_confirm(
+        &self,
+        firstname: &String,
+        surname: &String,
+        lastname: Option<String>,
+        email: &String,
+        pswd: &String,
+    ) -> Result<(), ServiceError>;
+
     async fn passport_confirm(
         &self,
         email: &String,
@@ -37,6 +51,16 @@ pub trait Authorizer: Send + Sync {
 
 #[async_trait]
 pub trait CarSearcher: Send + Sync {
+    async fn search_car_with_offset(
+        &self,
+        firstname: Option<String>,
+        surname: Option<String>,
+        lastname: Option<String>,
+        passport: Option<Document>,
+        gos_num_mask: Option<String>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, ServiceError>;
     async fn search_car(
         &self,
         firstname: Option<String>,
@@ -63,6 +87,17 @@ pub trait CarSearcher: Send + Sync {
 
 #[async_trait]
 pub trait TrackInfoSearcher: Send + Sync {
+    async fn search_track_info_with_offset(
+        &self,
+        firstname: Option<String>,
+        surname: Option<String>,
+        lastname: Option<String>,
+        passport: Option<Document>,
+        gos_num_mask: Option<String>,
+        date: Option<String>,
+        cursor: usize,
+        limit: isize,
+    ) -> Result<Vec<TrackInfo>, ServiceError>;
     async fn search_track_info(
         &self,
         firstname: Option<String>,
@@ -99,12 +134,23 @@ pub trait Searcher: CarSearcher + TrackInfoSearcher {}
 
 #[async_trait]
 pub trait RouteGetter: Send + Sync {
-    async fn get_car_route(
+    async fn is_car_owned_by_user(
+        &self,
+        user_id: usize,
+        gos_num: &String,
+    ) -> Result<bool, ServiceError>;
+    async fn get_car_route_with_user_email(
         &self,
         gos_num: &String,
         user_login: &String,
         date: &String,
     ) -> Result<Option<Vec<PointData>>, ServiceError>;
+    async fn get_car_route_with_user_id(
+        &self,
+        user_id: usize,
+        gos_num: &String,
+        date: &String,
+    ) -> Result<Vec<PointData>, ServiceError>;
 }
 
 // # Сервис отправки изображений

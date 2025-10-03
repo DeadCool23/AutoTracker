@@ -1,5 +1,6 @@
+use crate::paths::*;
 use axum::{
-    routing::{get, patch, post, put},
+    routing::{delete, get, patch, post, put},
     Router,
 };
 use utoipa::OpenApi;
@@ -30,15 +31,6 @@ use crate::handlers::v1::{
     snap_send_service::handle_snap_send,
     ApiDoc as ApiDocV1,
 };
-
-use crate::handlers::v2::{
-    auth_services::{
-        auth_service::handle_auth_v2, passport_confirm_service::handle_passport_conf_v2,
-    },
-    ApiDoc as ApiDocV2,
-};
-
-use crate::paths::*;
 
 fn v1_path(path: &str) -> String {
     vpath(1, path)
@@ -114,6 +106,20 @@ pub fn init_v1() -> Router {
         )
 }
 
+use crate::handlers::v2::{
+    auth_services::{
+        auth_service::handle_auth_v2, passport_confirm_service::handle_passport_conf_v2,
+        registration_service::handle_reg_v2, user_delete_service::handle_delete_user_by_id_v2,
+        user_get_service::handle_get_user_by_id_v2,
+    },
+    search_services::{
+        car_search_service::handle_search_cars_by_filters_with_offset_v2,
+        track_info_search_service::handle_search_track_info_by_filters_with_offset_v2,
+    },
+    route_get_service::handle_route_v2,
+    ApiDoc as ApiDocV2,
+};
+
 #[allow(dead_code)]
 fn v2_path(path: &str) -> String {
     vpath(2, path)
@@ -126,9 +132,27 @@ pub fn init_v2() -> Router {
             post(handle_auth_v2),
         )
         .route(
+            &v2_path(USER_ID_SERVICES_V2_PATH.as_str()),
+            get(handle_get_user_by_id_v2),
+        )
+        .route(
+            &v2_path(USER_ID_SERVICES_V2_PATH.as_str()),
+            delete(handle_delete_user_by_id_v2),
+        )
+        .route(
             &v2_path(PASSPORT_CONF_SERVICE_V2_PATH.as_str()),
             patch(handle_passport_conf_v2),
         )
+        .route(&v2_path(REG_SERVICE_V2_PATH.as_str()), post(handle_reg_v2))
+        .route(
+            &v2_path(CARS_SEARCH_SERVICE_PATH_V2.as_str()),
+            post(handle_search_cars_by_filters_with_offset_v2),
+        )
+        .route(
+            &v2_path(TRACK_INFOS_SEARCH_SERVICE_PATH_V2.as_str()),
+            post(handle_search_track_info_by_filters_with_offset_v2),
+        )
+        .route(&v2_path(ROUTE_GET_SERVICE_PATH_V2.as_str()), post(handle_route_v2))
         .merge(
             SwaggerUi::new(v2_path(DOCS_PATH.as_str()))
                 .url(v2_path(OPENAPI_DOCS_PATH.as_str()), ApiDocV2::openapi()),

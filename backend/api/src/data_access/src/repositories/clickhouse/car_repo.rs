@@ -169,6 +169,7 @@ impl ClickHouseCarRepo {
             query_builder.push_str(&format!(" AND  s.gos_num LIKE '{}' ", val));
         }
 
+        query_builder.push_str(" ORDER BY gos_num ");
         Ok(query_builder)
     }
 }
@@ -199,6 +200,47 @@ impl CarRepository for ClickHouseCarRepo {
         let rows = self
             .client
             .query(&query)
+            .fetch_all::<CarRow>()
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        log::info!("Found {} cars matching filters", rows.len());
+        Ok(Self::car_rows_to_cars(&rows))
+    }
+
+    async fn get_cars_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, DataAccessError> {
+        let transformed_gos_num = gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
+        log::info!(
+            "Searching cars by filters: {:?} {:?} {:?} {:?} {:?}",
+            firstname,
+            surname,
+            lastname,
+            transformed_gos_num,
+            passport,
+        );
+
+        let mut query =
+            Self::build_filter_query(firstname, surname, lastname, passport, gos_num_mask)?;
+        query.push_str("LIMIT ? OFFSET ?");
+        log::debug!("Executing query:\n{}", query);
+
+        let rows = self
+            .client
+            .query(&query)
+            .bind(limit)
+            .bind(offset)
             .fetch_all::<CarRow>()
             .await
             .map_err(|e| {

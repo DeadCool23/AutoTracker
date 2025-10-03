@@ -149,6 +149,70 @@ impl CarRepository for PgCarRepo {
         Ok(Self::form_rows_to_cars(&rows))
     }
 
+    async fn get_cars_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, DataAccessError> {
+        let transformed_gos_num = gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
+        log::info!(
+            "Searching cars by filters: {:?} {:?} {:?} {:?} {:?}",
+            firstname,
+            surname,
+            lastname,
+            transformed_gos_num,
+            passport,
+        );
+
+        let query = "
+        SELECT * FROM get_cars($1, $2, $3, $4, $5, $6)
+        ORDER BY gos_num
+        LIMIT $7
+        OFFSET $8
+        ";
+        log::debug!("Executing query: {}", query);
+
+        let pserial = match &passport {
+            Some(psprt) => Some(psprt.serial.clone().parse::<i32>().map_err(|_| {
+                log::error!("Invalid passport serial format: {}", &psprt.serial);
+                DataAccessError::InvalidInput("Invalid passport serial format".to_string())
+            })?),
+            None => None,
+        };
+
+        let pnumber = match &passport {
+            Some(psprt) => Some(psprt.number.clone().parse::<i32>().map_err(|_| {
+                log::error!("Invalid passport number format: {}", &psprt.number);
+                DataAccessError::InvalidInput("Invalid passport number format".to_string())
+            })?),
+            None => None,
+        };
+
+        let rows = sqlx::query(query)
+            .bind(firstname)
+            .bind(surname)
+            .bind(lastname)
+            .bind(transformed_gos_num)
+            .bind(pserial)
+            .bind(pnumber)
+            .bind(limit as i32)
+            .bind(offset as i32)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        log::info!("Found {} cars matching filters", rows.len());
+        Ok(Self::form_rows_to_cars(&rows))
+    }
+
     async fn get_car_by_gos_number_mask(
         &self,
         gos_number: &str,

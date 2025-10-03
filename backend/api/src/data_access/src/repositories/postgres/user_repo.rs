@@ -246,6 +246,35 @@ impl UserRepository for PgUserRepo {
         }
     }
 
+    async fn get_user_cars_gos_nums(&self, user_id: usize) -> Result<Vec<String>, DataAccessError> {
+        log::info!("Getting user {}", user_id);
+        let query = "
+            SELECT 
+                s.gos_num
+            FROM CarOwner o
+            JOIN Car c ON o.id = c.owner_id
+            JOIN STS s ON c.id = s.car_id
+            JOIN PTS p ON c.id = p.id
+            JOIN AppUser a ON a.passport_serial = o.passport_serial AND a.passport_num = o.passport_num
+            WHERE a.id = $1
+            ORDER BY c.gos_num
+        ";
+        log::debug!("Executing query: {}", query);
+
+        let rows = sqlx::query(query)
+            .bind(user_id as i32)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        let gos_nums: Vec<String> = rows.iter().map(|row| row.get("gos_num")).collect();
+
+        Ok(gos_nums)
+    }
+
     async fn insert_user(&self, user: &User, password: &str) -> Result<(), DataAccessError> {
         log::info!("Inserting new user: {}", user.email);
         let (passport_serial, passport_num) = match &user.passport {
@@ -379,6 +408,24 @@ impl UserRepository for PgUserRepo {
             })?;
 
         log::info!("Passport updated successfully for user: {}", id);
+        Ok(())
+    }
+
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), DataAccessError> {
+        log::info!("Deleting user: {}", id);
+        let query = "DELETE FROM AppUser WHERE id = $1";
+        log::debug!("Executing delete query: {}", query);
+
+        sqlx::query(query)
+            .bind(id as i32)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| {
+                log::error!("Failed to delete user {}: {}", id, e);
+                DataAccessError::PsqlDataBaseError(e)
+            })?;
+
+        log::info!("User deleted successfully: {}", id);
         Ok(())
     }
 }

@@ -355,6 +355,42 @@ impl UserRepository for ClickHouseUserRepo {
         }
     }
 
+    async fn get_user_cars_gos_nums(&self, user_id: usize) -> Result<Vec<String>, DataAccessError> {
+        #[derive(Debug, Deserialize, Row, Clone)]
+        struct GosNumRow {
+            gos_num: String,
+        }
+
+        log::info!("Getting user {}", user_id);
+        let query = "
+            SELECT 
+                s.gos_num
+            FROM CarOwner o
+            JOIN Car c ON o.id = c.owner_id
+            JOIN STS s ON c.id = s.car_id
+            JOIN PTS p ON c.id = p.id
+            JOIN AppUser a ON a.passport_serial = o.passport_serial AND a.passport_num = o.passport_num
+            WHERE a.id = ?
+            ORDER BY c.gos_num
+        ";
+        log::debug!("Executing query: {}", query);
+
+        let rows = self
+            .client
+            .query(&query)
+            .bind(user_id)
+            .fetch_all::<GosNumRow>()
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        let gos_nums: Vec<String> = rows.iter().map(|row| row.gos_num.clone()).collect();
+
+        Ok(gos_nums)
+    }
+
     async fn insert_user(&self, user: &User, password: &str) -> Result<(), DataAccessError> {
         self.insert_user_with_id(self.gen_id().await?, user, password)
             .await
@@ -449,6 +485,25 @@ impl UserRepository for ClickHouseUserRepo {
                 DataAccessError::ClickHouseBaseError(e)
             })?;
 
+        Ok(())
+    }
+
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), DataAccessError> {
+        log::info!("Deleting user: {}", id);
+        let query = "ALTER TABLE AppUser DELETE WHERE id = ?";
+        log::debug!("Executing delete query: {}", query);
+
+        self.client
+            .query(&query)
+            .bind(id)
+            .execute()
+            .await
+            .map_err(|e| {
+                log::error!("ClickHouse delete failed: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        log::info!("User deleted successfully: {}", id);
         Ok(())
     }
 }

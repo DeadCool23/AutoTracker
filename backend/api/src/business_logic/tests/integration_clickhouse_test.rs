@@ -92,7 +92,7 @@ mod integration_clickhouse_test {
         );
 
         let res = service
-            .get_car_route(
+            .get_car_route_with_user_email(
                 &"О987МС36".to_string(),
                 &"xrldnhuaz@protonmail.com".to_string(),
                 &"01.01.2025".to_string(),

@@ -20,7 +20,12 @@ pub trait UserRepository: Send + Sync {
     ) -> Result<Option<User>, DataAccessError>;
     async fn get_user_by_email(&self, email: &str) -> Result<Option<User>, DataAccessError>;
     async fn get_user_by_id(&self, id: usize) -> Result<Option<UserWithId>, DataAccessError>;
+    async fn get_user_cars_gos_nums(&self, user_id: usize) -> Result<Vec<String>, DataAccessError>;
+
     async fn insert_user(&self, user: &User, pswd: &str) -> Result<(), DataAccessError>;
+
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), DataAccessError>;
+
     async fn update_user_passport_by_email(
         &self,
         email: &String,
@@ -43,6 +48,16 @@ pub trait CarRepository: Send + Sync {
         passport: Option<Document>,
         gos_num_mask: Option<&str>,
     ) -> Result<Vec<Car>, DataAccessError>;
+    async fn get_cars_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, DataAccessError>;
     async fn get_car_by_gos_number_mask(
         &self,
         gos_number: &str,
@@ -61,10 +76,16 @@ pub trait CarRepository: Send + Sync {
 
 #[async_trait]
 pub trait TrackInfoRepository: Send + Sync {
-    async fn insert_track_info(
+    async fn insert_track_info_by_user_email(
         &self,
         gos_num: &str,
         user_login: &str,
+        route_date: &str,
+    ) -> Result<(), DataAccessError>;
+    async fn insert_track_info_by_user_id(
+        &self,
+        gos_num: &str,
+        user_id: usize,
         route_date: &str,
     ) -> Result<(), DataAccessError>;
     async fn get_tracks_info_by_filters(
@@ -75,6 +96,17 @@ pub trait TrackInfoRepository: Send + Sync {
         passport: Option<Document>,
         gos_num_mask: Option<&str>,
         date: Option<&str>,
+    ) -> Result<Vec<TrackInfo>, DataAccessError>;
+    async fn get_tracks_info_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        date: Option<&str>,
+        offset: usize,
+        limit: isize,
     ) -> Result<Vec<TrackInfo>, DataAccessError>;
     async fn get_track_info_by_date(&self, date: &str) -> Result<Vec<TrackInfo>, DataAccessError>;
     async fn get_track_info_by_car_gos_number_mask(

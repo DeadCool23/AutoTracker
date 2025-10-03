@@ -75,11 +75,17 @@ impl repositories_traits::UserRepository for MockUserRepo {
             Ok(None)
         }
     }
+    async fn get_user_cars_gos_nums(&self, user_id: usize) -> Result<Vec<String>, DataAccessError> {
+        Ok(vec![])
+    }
     async fn insert_user(&self, user: &User, pswd: &str) -> Result<(), DataAccessError> {
         if user.email == "exist@exist.com" {
             return Err(DataAccessError::InvalidInput("Exist".to_string()));
         }
 
+        Ok(())
+    }
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), DataAccessError> {
         Ok(())
     }
     async fn update_user_passport_by_email(
@@ -113,6 +119,18 @@ impl repositories_traits::CarRepository for MockCarRepo {
     ) -> Result<Vec<Car>, DataAccessError> {
         Ok(vec![])
     }
+    async fn get_cars_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, DataAccessError> {
+        Ok(vec![])
+    }
     async fn get_car_by_gos_number_mask(
         &self,
         gos_number: &str,
@@ -140,10 +158,18 @@ pub struct MockTrackInfoRepo;
 #[async_trait::async_trait]
 #[allow(unused_variables)]
 impl repositories_traits::TrackInfoRepository for MockTrackInfoRepo {
-    async fn insert_track_info(
+    async fn insert_track_info_by_user_email(
         &self,
         gos_num: &str,
         user_login: &str,
+        route_date: &str,
+    ) -> Result<(), DataAccessError> {
+        Ok(())
+    }
+    async fn insert_track_info_by_user_id(
+        &self,
+        gos_num: &str,
+        user_id: usize,
         route_date: &str,
     ) -> Result<(), DataAccessError> {
         Ok(())
@@ -156,6 +182,19 @@ impl repositories_traits::TrackInfoRepository for MockTrackInfoRepo {
         passport: Option<Document>,
         gos_num_mask: Option<&str>,
         date: Option<&str>,
+    ) -> Result<Vec<TrackInfo>, DataAccessError> {
+        Ok(vec![])
+    }
+    async fn get_tracks_info_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        date: Option<&str>,
+        offset: usize,
+        limit: isize,
     ) -> Result<Vec<TrackInfo>, DataAccessError> {
         Ok(vec![])
     }

@@ -2,7 +2,7 @@ use super::CarSearcherResponse;
 use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, ResponseStatusCodeType};
-use crate::paths::{vpath, TRACK_INFO_SEARCH_SERVICE_PATH as PATH};
+use crate::paths::{vpath, CAR_SEARCH_SERVICE_PATH as PATH};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use models::Document;
 use serde::{Deserialize, Serialize};

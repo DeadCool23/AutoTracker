@@ -31,7 +31,7 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
         (status = StatusCode::CONFLICT, description = "Паспортные данные уже привязаны к другому пользователю", body = StatusResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
-    tags = ["auth"]
+    tags = ["auth", "user"]
 )]
 pub async fn handle_passport_conf_v2(
     headers: HeaderMap,
@@ -78,6 +78,7 @@ pub async fn handle_passport_conf_v2(
                     ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
                 status.message = format!("Invalid {e}");
 
+                log::warn!("{}", status.message);
                 return (StatusCode::BAD_REQUEST, Json(status)).into_response();
             }
             ServiceError::IsExistError(e) => {
@@ -85,6 +86,7 @@ pub async fn handle_passport_conf_v2(
                     ResponseStatusCode::from(&e, ResponseStatusCodeType::EXIST_DATA) as isize;
                 status.message = format!("{e} is exist");
 
+                log::warn!("{}", status.message);
                 return (StatusCode::CONFLICT, Json(status)).into_response();
             }
             ServiceError::NotFoundError(e) => {
@@ -92,6 +94,7 @@ pub async fn handle_passport_conf_v2(
                     ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
                 status.message = format!("{e} not founded");
 
+                log::warn!("{}", status.message);
                 return (StatusCode::NOT_FOUND, Json(status)).into_response();
             }
             _ => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),

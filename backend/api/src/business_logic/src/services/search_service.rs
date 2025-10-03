@@ -89,6 +89,68 @@ impl TrackInfoSearcher for SearchService {
         Ok(track_infos)
     }
 
+    async fn search_track_info_with_offset(
+        &self,
+        firstname: Option<String>,
+        surname: Option<String>,
+        lastname: Option<String>,
+        passport: Option<Document>,
+        gos_num_mask: Option<String>,
+        date: Option<String>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<TrackInfo>, ServiceError> {
+        log::info!(
+            "Searching track info records by filters: {:?} {:?} {:?} {:?} {:?} {:?}",
+            firstname.as_deref(),
+            surname.as_deref(),
+            lastname.as_deref(),
+            passport,
+            gos_num_mask.as_deref(),
+            date.as_deref(),
+        );
+
+        if let Some(gsm) = &gos_num_mask {
+            if !Validator::is_valid_gos_num_mask(&gsm) {
+                log::warn!("Invalid gos number mask format: {}", &gsm);
+                return Err(ServiceError::InvalidDataError(
+                    "gos number mask".to_string(),
+                ));
+            }
+        }
+
+        if let Some(psprt) = &passport {
+            if !Validator::is_valid_passport(&psprt) {
+                log::warn!("Invalid passport format: {:#?}", &psprt);
+                return Err(ServiceError::InvalidDataError("passport".to_string()));
+            }
+        }
+
+        if let Some(dt) = &date {
+            if !Validator::is_valid_date(dt) {
+                log::warn!("Invalid date format: {}", dt);
+                return Err(ServiceError::InvalidDataError("date".to_string()));
+            }
+        }
+
+        let track_infos = self
+            .track_info_repo
+            .get_tracks_info_by_filters_with_offset(
+                firstname.as_deref(),
+                surname.as_deref(),
+                lastname.as_deref(),
+                passport,
+                gos_num_mask.as_deref(),
+                date.as_deref(),
+                offset,
+                limit,
+            )
+            .await?;
+
+        log::debug!("Found {} track info records by filters", track_infos.len());
+        Ok(track_infos)
+    }
+
     async fn search_track_info_by_owner_fio(
         &self,
         firstname: Option<String>,
@@ -224,6 +286,58 @@ impl CarSearcher for SearchService {
                 lastname.as_deref(),
                 passport,
                 gos_num_mask.as_deref(),
+            )
+            .await?;
+
+        log::debug!("Found {} cars by filters", cars.len());
+        Ok(cars)
+    }
+
+    async fn search_car_with_offset(
+        &self,
+        firstname: Option<String>,
+        surname: Option<String>,
+        lastname: Option<String>,
+        passport: Option<Document>,
+        gos_num_mask: Option<String>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<Car>, ServiceError> {
+        log::info!(
+            "Searching cars by filters: {:?} {:?} {:?} {:?} {:?}",
+            firstname.as_deref(),
+            surname.as_deref(),
+            lastname.as_deref(),
+            passport,
+            gos_num_mask.as_deref()
+        );
+
+        if let Some(gsm) = &gos_num_mask {
+            if !Validator::is_valid_gos_num_mask(&gsm) {
+                log::warn!("Invalid gos number mask format: {}", &gsm);
+                return Err(ServiceError::InvalidDataError(
+                    "gos number mask".to_string(),
+                ));
+            }
+        }
+
+        if let Some(psprt) = &passport {
+            if !Validator::is_valid_passport(&psprt) {
+                log::warn!("Invalid passport format: {:#?}", &psprt);
+                return Err(ServiceError::InvalidDataError("passport".to_string()));
+            }
+        }
+
+        let cars = self
+            .car_repo
+            .get_cars_by_filters_with_offset(
+                firstname.as_deref(),
+                surname.as_deref(),
+                lastname.as_deref(),
+                passport,
+                gos_num_mask.as_deref(),
+                offset,
+                limit,
             )
             .await?;
 

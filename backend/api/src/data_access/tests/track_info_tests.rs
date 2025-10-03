@@ -121,7 +121,7 @@ mod track_info_tests {
         let repo = PgTrackInfoRepo::from(&PG_URL).await.unwrap();
 
         let res = repo
-            .insert_track_info("О777ОО77", "example@example.com", "01.01.2020")
+            .insert_track_info_by_user_email("О777ОО77", "example@example.com", "01.01.2020")
             .await;
 
         println!("{:#?}", res);
@@ -135,7 +135,7 @@ mod track_info_tests {
             .unwrap();
 
         let res = repo
-            .insert_track_info("Е880ХС65", "b35hvde3@mail.com", "25.07.2024")
+            .insert_track_info_by_user_email("Е880ХС65", "b35hvde3@mail.com", "25.07.2024")
             .await;
 
         println!("{:#?}", res);

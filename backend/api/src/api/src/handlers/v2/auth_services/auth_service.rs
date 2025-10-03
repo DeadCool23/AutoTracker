@@ -24,7 +24,7 @@ pub struct AuthResponse {
 #[axum::debug_handler]
 #[utoipa::path(
     post,
-    path = "/api/v2/users/auth",
+    path = "/api/v2/users/login",
     request_body = AuthRequest,
     summary = "Аутентификация",
     description = "Аутентификация пользователя по логину и паролю",
@@ -33,7 +33,7 @@ pub struct AuthResponse {
         (status = StatusCode::BAD_REQUEST, description = "Невалидные данные", body = StatusResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
-    tags = ["auth"]
+    tags = ["auth", "user"]
 )]
 pub async fn handle_auth_v2(ExtractJson(payload): ExtractJson<AuthRequest>) -> Response {
     let mut status = StatusResponse::new();

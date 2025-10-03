@@ -261,13 +261,14 @@ impl ClickHouseTrackInfoRepo {
             query_builder.push_str(&format!(" AND  s.gos_num LIKE '{}' ", val));
         }
 
+        query_builder.push_str(" ORDER BY route_date ");
         Ok(query_builder)
     }
 }
 
 #[async_trait]
 impl TrackInfoRepository for ClickHouseTrackInfoRepo {
-    async fn insert_track_info(
+    async fn insert_track_info_by_user_email(
         &self,
         gos_num: &str,
         user_login: &str,
@@ -334,6 +335,73 @@ impl TrackInfoRepository for ClickHouseTrackInfoRepo {
         Ok(())
     }
 
+    async fn insert_track_info_by_user_id(
+        &self,
+        gos_num: &str,
+        user_id: usize,
+        route_date: &str,
+    ) -> Result<(), DataAccessError> {
+        log::info!(
+            "Inserting track info for vehicle {} by user {} on date {}",
+            gos_num,
+            user_id,
+            route_date
+        );
+
+        let date = NaiveDate::parse_from_str(route_date, "%d.%m.%Y").map_err(|e| {
+            log::error!("Invalid date format: {}", e);
+            DataAccessError::InvalidInput(e.to_string())
+        })?;
+
+        let moscow_time = Utc::now() + chrono::Duration::hours(3);
+        let moscow_naive = moscow_time.naive_utc();
+        log::debug!("Current Moscow time: {}", moscow_naive);
+        let moscow_naive = moscow_naive.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        let fid = self
+            .client
+            .query(
+                "
+                SELECT c.id as car_id, a.id as user_id
+                FROM Car c
+                JOIN STS s ON s.car_id = c.id
+                JOIN AppUser a ON a.id = ?
+                WHERE s.gos_num = ?
+                ",
+            )
+            .bind(user_id)
+            .bind(gos_num)
+            .fetch_one::<IdPair>()
+            .await
+            .map_err(|e| {
+                log::error!("Failed to fetch IDs: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        let id = self.gen_id().await?;
+        let query = "
+            INSERT INTO TrackInfo (id, user_id, track_time, route_date, car_id)
+            VALUES (?, ?, ?, ?, ?)
+        ";
+
+        self.client
+            .query(query)
+            .bind(id)
+            .bind(fid.user_id)
+            .bind(moscow_naive)
+            .bind(date)
+            .bind(fid.car_id)
+            .execute()
+            .await
+            .map_err(|e| {
+                log::error!("Insert failed: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        log::info!("Successfully inserted track info");
+        Ok(())
+    }
+
     async fn get_tracks_info_by_filters(
         &self,
         firstname: Option<&str>,
@@ -360,6 +428,48 @@ impl TrackInfoRepository for ClickHouseTrackInfoRepo {
         let rows = self
             .client
             .query(&query)
+            .fetch_all::<TrackInfoRow>()
+            .await
+            .map_err(|e| {
+                log::error!("Query failed: {}", e);
+                DataAccessError::ClickHouseBaseError(e)
+            })?;
+
+        log::info!("Found {} cars matching filters", rows.len());
+        Ok(Self::track_info_rows_to_tracks_info(&rows))
+    }
+
+    async fn get_tracks_info_by_filters_with_offset(
+        &self,
+        firstname: Option<&str>,
+        surname: Option<&str>,
+        lastname: Option<&str>,
+        passport: Option<Document>,
+        gos_num_mask: Option<&str>,
+        date: Option<&str>,
+        offset: usize,
+        limit: isize,
+    ) -> Result<Vec<TrackInfo>, DataAccessError> {
+        let transformed_gos_num = gos_num_mask.map(|gsn| Self::transform_mask_for_psql_like(gsn));
+        log::info!(
+            "Searching cars by filters: {:?} {:?} {:?} {:?} {:?}",
+            firstname,
+            surname,
+            lastname,
+            transformed_gos_num,
+            passport,
+        );
+
+        let mut query =
+            Self::build_filter_query(firstname, surname, lastname, passport, gos_num_mask, date)?;
+        query.push_str("LIMIT ? OFFSET ?");
+        log::debug!("Executing query:\n{}", query);
+
+        let rows = self
+            .client
+            .query(&query)
+            .bind(limit)
+            .bind(offset)
             .fetch_all::<TrackInfoRow>()
             .await
             .map_err(|e| {

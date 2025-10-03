@@ -57,7 +57,7 @@ pub async fn handle_route(
     };
 
     let route = match service
-        .get_car_route(&payload.gos_num, &payload.user_login, &payload.date)
+        .get_car_route_with_user_email(&payload.gos_num, &payload.user_login, &payload.date)
         .await
     {
         Ok(route) => route,

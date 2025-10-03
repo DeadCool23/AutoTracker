@@ -21,6 +21,23 @@ unsafe impl Sync for AuthService {}
 
 #[async_trait]
 impl Authorizer for AuthService {
+    async fn get_user_by_id(&self, id: usize) -> Result<UserWithId, ServiceError> {
+        log::info!("Attempting getting user by id: {}", id);
+
+        let res = self.user_repo.get_user_by_id(id).await?;
+
+        match res {
+            Some(user) => {
+                log::info!("Successful getted user with id: {}", id);
+                Ok(user)
+            }
+            None => {
+                log::warn!("Failed getting user with id: {}", id);
+                Err(ServiceError::NotFoundError("user_id".to_string()))
+            }
+        }
+    }
+
     async fn auth(&self, email: &String, pswd: &String) -> Result<User, ServiceError> {
         log::info!("Attempting authentication for email: {}", email);
 
@@ -148,6 +165,52 @@ impl Authorizer for AuthService {
         }
     }
 
+    async fn register_without_pswd_confirm(
+        &self,
+        firstname: &String,
+        surname: &String,
+        lastname: Option<String>,
+        email: &String,
+        pswd: &String,
+    ) -> Result<(), ServiceError> {
+        log::info!("Starting registration process for email: {}", email);
+
+        if !Validator::is_valid_email(email) {
+            log::warn!("Invalid email format during registration: {}", email);
+            return Err(ServiceError::InvalidDataError("email".to_string()));
+        }
+
+        if !Validator::is_valid_password(pswd) {
+            log::warn!(
+                "Invalid password format during registration for email: {}",
+                email
+            );
+            return Err(ServiceError::InvalidDataError("password".to_string()));
+        }
+
+        match self.user_repo.get_user_by_email(email).await? {
+            Some(_) => {
+                log::warn!("Registration attempt with existing email: {}", email);
+                Err(ServiceError::IsExistError("email".to_string()))
+            }
+            None => {
+                let user = User {
+                    name: firstname.to_string(),
+                    surname: surname.to_string(),
+                    lastname: lastname.clone(),
+                    email: email.to_string(),
+                    role: Role::user,
+                    is_verified: false,
+                    passport: None,
+                };
+
+                self.user_repo.insert_user(&user, pswd).await?;
+                log::info!("Successfully registered new user: {}", email);
+                Ok(())
+            }
+        }
+    }
+
     async fn passport_confirm(
         &self,
         email: &String,
@@ -235,6 +298,15 @@ impl Authorizer for AuthService {
             .update_user_passport_by_id(id, passport)
             .await?;
         log::info!("Successfully updated passport for user: {}", id);
+        Ok(())
+    }
+
+    async fn delete_user_by_id(&self, id: usize) -> Result<(), ServiceError> {
+        log::info!("Attempting delete user by id: {}", id);
+
+        let _ = self.get_user_by_id(id).await?;
+
+        self.user_repo.delete_user_by_id(id).await?;
         Ok(())
     }
 }

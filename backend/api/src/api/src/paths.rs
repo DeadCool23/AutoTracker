@@ -42,8 +42,8 @@ lazy_static! {
         format!("{}/avg-speed", CAMERA_PATH.as_str());
 
     // Search path
-    pub static ref CAR_SEARCH_SERVICE_PATH: String = format!("{}/search", CAR_PATH.as_str());
-    pub static ref TRACK_INFO_SEARCH_SERVICE_PATH: String = format!("{}/search", TRACK_INFO_PATH.as_str());
+    pub static ref CAR_SEARCH_SERVICE_PATH: String = format!("{}{}", CAR_PATH.as_str(), SEARCH_PATH.as_str());
+    pub static ref TRACK_INFO_SEARCH_SERVICE_PATH: String = format!("{}{}", TRACK_INFO_PATH.as_str(), SEARCH_PATH.as_str());
 
     // Car search
     pub static ref CAR_SEARCH_BY_FIO_SERVICE_PATH: String = format!("{}/by-fio", CAR_SEARCH_SERVICE_PATH.as_str());
@@ -64,8 +64,16 @@ lazy_static! {
     pub static ref TRACK_INFOS_PATH: String = "/track-infos".to_string();
 
     // Auth path v2
-    pub static ref AUTH_SERVICE_V2_PATH: String = format!("{}/auth", USERS_PATH.as_str());
+    pub static ref AUTH_SERVICE_V2_PATH: String = format!("{}/login", USERS_PATH.as_str());
+    pub static ref USER_ID_SERVICES_V2_PATH: String = format!("{}/{{id}}", USERS_PATH.as_str());
     pub static ref REG_SERVICE_V2_PATH: String = format!("{}/registr", USERS_PATH.as_str());
     pub static ref PASSPORT_CONF_SERVICE_V2_PATH: String =
         format!("{}/{{id}}/passport", USERS_PATH.as_str());
+
+    // Search path v2
+    pub static ref CARS_SEARCH_SERVICE_PATH_V2: String = format!("{}{}", CARS_PATH.as_str(), SEARCH_PATH.as_str());
+    pub static ref TRACK_INFOS_SEARCH_SERVICE_PATH_V2: String = format!("{}{}", TRACK_INFOS_PATH.as_str(), SEARCH_PATH.as_str());
+
+    // Route get path v2
+    pub static ref ROUTE_GET_SERVICE_PATH_V2: String = format!("{}/route", CARS_PATH.as_str());
 }

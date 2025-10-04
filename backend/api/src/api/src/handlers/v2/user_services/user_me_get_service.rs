@@ -29,10 +29,7 @@ use models::UserWithId;
 )]
 pub async fn handle_get_user_me_v2(headers: HeaderMap) -> Response {
     let mut status = StatusResponse::new();
-    log::info!(
-        "Received request from {}",
-        vpath(VERSION, PATH.as_str()),
-    );
+    log::info!("Received request from {}", vpath(VERSION, PATH.as_str()),);
 
     let claim = match get_auth_data(headers) {
         Ok(c) => c,

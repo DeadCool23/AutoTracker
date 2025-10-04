@@ -31,7 +31,7 @@ use super::{ResponseStatusCode, ResponseStatusCodeType, StatusResponse};
         (status = StatusCode::CONFLICT, description = "Паспортные данные уже привязаны к другому пользователю", body = StatusResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
-    tags = ["auth", "user"]
+    tags = ["user", "auth"]
 )]
 pub async fn handle_passport_conf_v2(
     headers: HeaderMap,

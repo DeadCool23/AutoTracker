@@ -76,17 +76,18 @@ pub async fn handle_route_v2(
                 Err(e) => match e {
                     ServiceError::InvalidDataError(e) => {
                         status.code =
-                            ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
+                            ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA)
+                                as isize;
                         status.message = format!("Invalid {e}");
 
                         log::warn!("Sended error response {:#?}", status);
                         return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-                    },
+                    }
                     _ => {
                         log::error!("Can't check ownership: {:?}", e);
                         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
                     }
-                }
+                },
             };
 
             if !is_owner {

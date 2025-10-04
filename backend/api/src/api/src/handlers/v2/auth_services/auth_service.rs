@@ -33,7 +33,7 @@ pub struct AuthResponse {
         (status = StatusCode::BAD_REQUEST, description = "Невалидные данные", body = StatusResponse),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Внутренняя ошибка сервера"),
     ),
-    tags = ["auth", "user"]
+    tags = ["auth"]
 )]
 pub async fn handle_auth_v2(ExtractJson(payload): ExtractJson<AuthRequest>) -> Response {
     let mut status = StatusResponse::new();

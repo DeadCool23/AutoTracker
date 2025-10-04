@@ -3,7 +3,7 @@ use utoipa::OpenApi;
 
 use di_container::error::ServiceError;
 use di_container::{CoreServices, ServicesContainer};
-use models::{Document, UserWithId, PointData};
+use models::{Document, PointData, UserWithId};
 
 pub use super::response_status_code::{ResponseStatusCode, ResponseStatusCodeType};
 pub use super::status_response::StatusResponse;
@@ -15,6 +15,10 @@ use auth_services::{
     auth_service::{AuthRequest, AuthResponse, __path_handle_auth_v2},
     passport_confirm_service::__path_handle_passport_conf_v2,
     registration_service::{RegRequest, __path_handle_reg_v2},
+};
+
+pub mod user_services;
+use user_services::{
     user_delete_service::__path_handle_delete_user_by_id_v2,
     user_get_service::__path_handle_get_user_by_id_v2,
     user_me_get_service::__path_handle_get_user_me_v2,

@@ -2,7 +2,7 @@ use super::super::token_auth::get_auth_data;
 use super::StatusResponse;
 use super::VERSION;
 use super::{CoreServices, ServicesContainer};
-use crate::paths::{vpath, AUTH_SERVICE_PATH as PATH};
+use crate::paths::{vpath, USER_ID_SERVICES_V2_PATH as PATH};
 use axum::response::{IntoResponse, Response};
 use axum::{
     extract::Path,

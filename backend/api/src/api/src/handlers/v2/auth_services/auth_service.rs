@@ -1,7 +1,7 @@
 use super::VERSION;
 use super::{CoreServices, ServiceError, ServicesContainer};
 use super::{ResponseStatusCode, StatusResponse};
-use crate::paths::{vpath, AUTH_SERVICE_PATH as PATH};
+use crate::paths::{vpath, AUTH_SERVICE_V2_PATH as PATH};
 use axum::response::{IntoResponse, Response};
 use axum::{extract::Json as ExtractJson, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};

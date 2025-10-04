@@ -63,9 +63,10 @@ lazy_static! {
     pub static ref CAMERAS_PATH: String = "/cameras".to_string();
     pub static ref TRACK_INFOS_PATH: String = "/track-infos".to_string();
 
-    // Auth path v2
+    // User path v2
     pub static ref AUTH_SERVICE_V2_PATH: String = format!("{}/login", USERS_PATH.as_str());
     pub static ref USER_ID_SERVICES_V2_PATH: String = format!("{}/{{id}}", USERS_PATH.as_str());
+    pub static ref USER_ME_SERVICE_V2_PATH: String = format!("{}/me", USERS_PATH.as_str());
     pub static ref REG_SERVICE_V2_PATH: String = format!("{}/registr", USERS_PATH.as_str());
     pub static ref PASSPORT_CONF_SERVICE_V2_PATH: String =
         format!("{}/{{id}}/passport", USERS_PATH.as_str());

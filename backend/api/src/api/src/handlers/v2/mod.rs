@@ -17,6 +17,7 @@ use auth_services::{
     registration_service::{RegRequest, __path_handle_reg_v2},
     user_delete_service::__path_handle_delete_user_by_id_v2,
     user_get_service::__path_handle_get_user_by_id_v2,
+    user_me_get_service::__path_handle_get_user_me_v2,
 };
 
 pub mod search_services;
@@ -55,6 +56,7 @@ const VERSION: u8 = 2;
         handle_auth_v2,
         handle_passport_conf_v2,
         handle_reg_v2,
+        handle_get_user_me_v2,
         handle_get_user_by_id_v2,
         handle_delete_user_by_id_v2,
 

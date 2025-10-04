@@ -111,6 +111,7 @@ use crate::handlers::v2::{
         auth_service::handle_auth_v2, passport_confirm_service::handle_passport_conf_v2,
         registration_service::handle_reg_v2, user_delete_service::handle_delete_user_by_id_v2,
         user_get_service::handle_get_user_by_id_v2,
+        user_me_get_service::handle_get_user_me_v2,
     },
     search_services::{
         car_search_service::handle_search_cars_by_filters_with_offset_v2,
@@ -130,6 +131,10 @@ pub fn init_v2() -> Router {
         .route(
             &v2_path(AUTH_SERVICE_V2_PATH.as_str()),
             post(handle_auth_v2),
+        )
+        .route(
+            &v2_path(USER_ME_SERVICE_V2_PATH.as_str()),
+            get(handle_get_user_me_v2),
         )
         .route(
             &v2_path(USER_ID_SERVICES_V2_PATH.as_str()),

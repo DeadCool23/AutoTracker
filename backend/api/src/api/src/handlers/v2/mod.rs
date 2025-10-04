@@ -36,7 +36,7 @@ use search_services::{
 };
 
 pub mod route_get_service;
-use route_get_service::{RouteRequest, __path_handle_route_v2};
+use route_get_service::{RouteRequest, RouteResponse, __path_handle_route_v2};
 
 const VERSION: u8 = 2;
 
@@ -74,7 +74,7 @@ const VERSION: u8 = 2;
         Document, RegRequest, UserWithId,
         SearchCarsRequest, CarSearcherResponse,
         TrackInfoSearcherResponse, SearchTrackInfoByFilterRequest,
-        RouteRequest, PointData,
+        RouteRequest, RouteResponse, PointData,
         StatusResponse,
     )),
     tags(

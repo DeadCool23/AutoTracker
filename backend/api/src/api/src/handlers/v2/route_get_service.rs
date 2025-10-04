@@ -22,6 +22,11 @@ pub struct RouteRequest {
     pub date: String,
 }
 
+#[derive(ToSchema, Deserialize, Serialize, Debug)]
+pub struct RouteResponse {
+    pub route: Vec<PointData>,
+}
+
 #[axum::debug_handler]
 #[utoipa::path(
     post,
@@ -33,7 +38,7 @@ pub struct RouteRequest {
         ("jwt_bearer_auth" = [])
     ),
     responses(
-        (status = StatusCode::OK, description = "Маршрут успешно получен", body = Vec<PointData>),
+        (status = StatusCode::OK, description = "Маршрут успешно получен", body = RouteResponse),
         (status = StatusCode::UNAUTHORIZED, description = "Пользователь не авторизирован"),
         (status = StatusCode::FORBIDDEN, description = "Недостаточно прав"),
         (status = StatusCode::NOT_FOUND, description = "Данные не найдены", body = StatusResponse),
@@ -127,5 +132,5 @@ pub async fn handle_route_v2(
 
     log::info!("Sended response {:#?}", route);
 
-    Json(route).into_response()
+    Json(RouteResponse { route }).into_response()
 }

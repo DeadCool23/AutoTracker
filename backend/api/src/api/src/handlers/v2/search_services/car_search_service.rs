@@ -1,7 +1,6 @@
-use super::get_auth_data;
+use super::{get_auth_data, validate_pagination, handle_search_error};
 use super::VERSION;
-use super::{CoreServices, ServiceError, ServicesContainer};
-use super::{ResponseStatusCode, ResponseStatusCodeType};
+use super::{CoreServices, ServicesContainer};
 use crate::paths::{vpath, CAR_SEARCH_SERVICE_PATH as PATH};
 use axum::response::{IntoResponse, Response};
 use axum::{
@@ -71,11 +70,11 @@ fn check_roots(claim: &Claims, request: &SearchCarsRequest) -> Result<(), Status
     ),
     tags = ["search", "car"]
 )]
+#[axum::debug_handler]
 pub async fn handle_search_cars_by_filters_with_offset_v2(
     headers: HeaderMap,
     ExtractJson(payload): ExtractJson<SearchCarsRequest>,
 ) -> Response {
-    let mut status = StatusResponse::new();
     log::info!(
         "Received request from {}: {:?}",
         vpath(VERSION, PATH.as_str()),
@@ -94,22 +93,19 @@ pub async fn handle_search_cars_by_filters_with_offset_v2(
     let service = match ServicesContainer::get("searcher").await {
         Some(CoreServices::SearchService(s)) => s,
         _ => {
-            log::warn!("Can't get SearchService");
+            log::error!("Can't get SearchService");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
 
-    let offset = payload.offset.unwrap_or(0);
-    let limit = payload.limit.unwrap_or(-1);
-    if limit < -1 || limit == 0 {
-        status.code = ResponseStatusCode::INVALID_LIMIT as isize;
-        status.message = "Invalid limit: limit == -1 || limit > 0".to_string();
-
-        log::warn!("{}", status.message);
-        return (StatusCode::BAD_REQUEST, Json(status)).into_response();
+    if let Err(resp) = validate_pagination(payload.limit) {
+        return resp;
     }
 
-    let response = match service
+    let offset = payload.offset.unwrap_or(0);
+    let limit = payload.limit.unwrap_or(-1);
+
+    match service
         .search_car_with_offset(
             payload.name,
             payload.surname,
@@ -123,24 +119,11 @@ pub async fn handle_search_cars_by_filters_with_offset_v2(
     {
         Ok(cars) => {
             let new_offset = offset + cars.len();
-            CarSearcherResponse {
-                cars,
-                offset: new_offset,
-            }
-        }
-        Err(e) => match e {
-            ServiceError::InvalidDataError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
-                status.message = format!("Invalid {e}");
-
-                log::warn!("{}", status.message);
-                return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-            }
-            _ => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+            let response = CarSearcherResponse { cars, offset: new_offset };
+            log::info!("Sending response {:#?}", response);
+            Json(response).into_response()
         },
-    };
-
-    log::info!("Sended response {:#?}", response);
-    Json(response).into_response()
+        Err(e) => handle_search_error(e),
+    }
 }
+

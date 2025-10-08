@@ -30,7 +30,6 @@ use models::UserWithId;
     tags = ["user"]
 )]
 pub async fn handle_get_user_by_id_v2(headers: HeaderMap, Path(id): Path<usize>) -> Response {
-    let mut status = StatusResponse::new();
     log::info!(
         "Received request from {}: {:?}",
         vpath(VERSION, PATH.as_str()),
@@ -42,35 +41,49 @@ pub async fn handle_get_user_by_id_v2(headers: HeaderMap, Path(id): Path<usize>)
         Err(code) => return code.into_response(),
     };
 
-    if claim.id != id as usize {
-        log::warn!("Not enough rights");
+    if claim.id != id {
+        log::warn!("Access denied: claim.id = {}, path.id = {}", claim.id, id);
         return StatusCode::FORBIDDEN.into_response();
     }
 
     let service = match ServicesContainer::get("auther").await {
         Some(CoreServices::AuthService(s)) => s,
         _ => {
-            log::warn!("Can't get AuthService");
+            log::error!("Can't get AuthService");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
 
-    let user = match service.get_user_by_id(id).await {
-        Ok(user) => user,
-        Err(e) => match e {
-            ServiceError::NotFoundError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
-                status.message = format!("Not founded {e}");
-                log::warn!("Sended error response {:#?}", status);
+    match service.get_user_by_id(id).await {
+        Ok(user) => {
+            log::info!("Sending response: {:#?}", user);
+            Json(user).into_response()
+        }
+        Err(e) => handle_get_user_by_id_error(e),
+    }
+}
 
-                return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-            }
-            _ => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-        },
-    };
+fn handle_get_user_by_id_error(err: ServiceError) -> Response {
+    let mut status = StatusResponse::new();
 
-    log::info!("Sended response {:#?}", user);
-
-    Json(user).into_response()
+    match err {
+        ServiceError::NotFoundError(e) => {
+            status.code =
+                ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
+            status.message = format!("Not found: {e}");
+            log::warn!("User not found: {e}");
+            (StatusCode::BAD_REQUEST, Json(status)).into_response()
+        }
+        ServiceError::InvalidDataError(e) => {
+            status.code =
+                ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
+            status.message = format!("Invalid data: {e}");
+            log::warn!("Invalid data: {e}");
+            (StatusCode::BAD_REQUEST, Json(status)).into_response()
+        }
+        _ => {
+            log::error!("Unexpected service error: {:?}", err);
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }

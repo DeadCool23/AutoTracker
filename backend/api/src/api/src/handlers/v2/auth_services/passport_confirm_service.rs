@@ -50,57 +50,54 @@ pub async fn handle_passport_conf_v2(
     };
 
     if claim.id != id as usize {
-        log::error!("Not enough rights");
+        log::error!("Not enough rights: claim.id={} != path.id={}", claim.id, id);
         return StatusCode::FORBIDDEN.into_response();
     }
-
-    let mut status = StatusResponse::new();
-    log::info!(
-        "Received request from {}: id {} {:?}",
-        vpath(VERSION, PATH.as_str()),
-        id,
-        payload
-    );
 
     let service = match ServicesContainer::get("auther").await {
         Some(CoreServices::AuthService(s)) => s,
         _ => {
-            log::warn!("Can't get AuthService");
-            return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
+            log::error!("Can't get AuthService");
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
 
-    match service.passport_confirm_by_id(id as usize, &payload).await {
-        Ok(_) => {}
-        Err(e) => match e {
-            ServiceError::InvalidDataError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
-                status.message = format!("Invalid {e}");
+    if let Err(e) = service.passport_confirm_by_id(id as usize, &payload).await {
+        return handle_passport_conf_error(e);
+    }
 
-                log::warn!("{}", status.message);
-                return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-            }
-            ServiceError::IsExistError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::EXIST_DATA) as isize;
-                status.message = format!("{e} is exist");
+    log::info!("Passport confirmation for user {id} succeeded");
+    StatusCode::NO_CONTENT.into_response()
+}
 
-                log::warn!("{}", status.message);
-                return (StatusCode::CONFLICT, Json(status)).into_response();
-            }
-            ServiceError::NotFoundError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
-                status.message = format!("{e} not founded");
+fn handle_passport_conf_error(err: ServiceError) -> Response {
+    let mut status = StatusResponse::new();
 
-                log::warn!("{}", status.message);
-                return (StatusCode::NOT_FOUND, Json(status)).into_response();
-            }
-            _ => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
-        },
-    };
-
-    log::info!("Request status {:#?}", status);
-    (StatusCode::NO_CONTENT).into_response()
+    match err {
+        ServiceError::InvalidDataError(e) => {
+            status.code =
+                ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
+            status.message = format!("Invalid {e}");
+            log::warn!("Invalid data: {e}");
+            (StatusCode::BAD_REQUEST, Json(status)).into_response()
+        }
+        ServiceError::IsExistError(e) => {
+            status.code =
+                ResponseStatusCode::from(&e, ResponseStatusCodeType::EXIST_DATA) as isize;
+            status.message = format!("{e} already exists");
+            log::warn!("Conflict: {e}");
+            (StatusCode::CONFLICT, Json(status)).into_response()
+        }
+        ServiceError::NotFoundError(e) => {
+            status.code =
+                ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
+            status.message = format!("{e} not found");
+            log::warn!("Not found: {e}");
+            (StatusCode::NOT_FOUND, Json(status)).into_response()
+        }
+        _ => {
+            log::error!("Internal server error during passport confirmation: {:?}", err);
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }

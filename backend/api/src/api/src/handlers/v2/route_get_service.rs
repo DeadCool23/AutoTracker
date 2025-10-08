@@ -8,6 +8,7 @@ use axum::{
     http::{HeaderMap, StatusCode},
     Json,
 };
+use jwt_processing::Claims;
 use models::{PointData, Role};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -51,7 +52,6 @@ pub async fn handle_route_v2(
     headers: HeaderMap,
     ExtractJson(payload): ExtractJson<RouteRequest>,
 ) -> Response {
-    let mut status = StatusResponse::new();
     log::info!(
         "Received request from {}: {:?}",
         vpath(VERSION, PATH.as_str()),
@@ -64,73 +64,106 @@ pub async fn handle_route_v2(
     };
 
     let service = match ServicesContainer::get("route_getter").await {
-        Some(CoreServices::RouteGetService(s)) => s,
+        Some(CoreServices::RouteGetService(s)) => CoreServices::RouteGetService(s),
         _ => {
-            log::warn!("Can't get RouteGetService");
+            log::error!("Can't get RouteGetService");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
 
-    if claim.role != Role::audit {
-        if claim.role == Role::user {
-            let is_owner = match service
-                .is_car_owned_by_user(claim.id, &payload.gos_num)
-                .await
-            {
-                Ok(check) => check,
-                Err(e) => match e {
-                    ServiceError::InvalidDataError(e) => {
-                        status.code =
-                            ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA)
-                                as isize;
-                        status.message = format!("Invalid {e}");
-
-                        log::warn!("Sended error response {:#?}", status);
-                        return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-                    }
-                    _ => {
-                        log::error!("Can't check ownership: {:?}", e);
-                        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-                    }
-                },
-            };
-
-            if !is_owner {
-                log::error!("User {} not owner of car {}", claim.id, &payload.gos_num);
-                return StatusCode::FORBIDDEN.into_response();
-            }
-        } else {
-            return StatusCode::FORBIDDEN.into_response();
-        }
+    if let Err(resp) = verify_user_access(&claim, &payload.gos_num, &service).await {
+        return resp;
     }
 
-    let route = match service
+    match get_car_route_with_response(&service, &claim, &payload).await {
+        Ok(route) => {
+            log::info!("Sended response {:#?}", route);
+            Json(RouteResponse { route }).into_response()
+        }
+        Err(resp) => resp,
+    }
+}
+
+fn build_error_response(
+    err_msg: &str,
+    code_type: ResponseStatusCodeType,
+    status: StatusCode,
+) -> Response {
+    let mut status_body = StatusResponse::new();
+    status_body.code = ResponseStatusCode::from(err_msg, code_type) as isize;
+    status_body.message = format!("{err_msg}");
+
+    log::warn!("Sending error response {:#?}", status_body);
+    (status, Json(status_body)).into_response()
+}
+
+async fn verify_user_access(
+    claim: &Claims,
+    gos_num: &str,
+    service: &CoreServices,
+) -> Result<(), Response> {
+    let serv = match service {
+        CoreServices::RouteGetService(s) => s,
+        _ => return Err(StatusCode::INTERNAL_SERVER_ERROR.into_response()),
+    };
+
+    match claim.role {
+        Role::audit => Ok(()),
+        Role::user => {
+            match serv.is_car_owned_by_user(claim.id, &gos_num.to_string()).await {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("User {} not owner of car {}", claim.id, gos_num);
+                    Err(StatusCode::FORBIDDEN.into_response())
+                }
+                Err(ServiceError::InvalidDataError(e)) => {
+                    let resp = build_error_response(
+                        &e,
+                        ResponseStatusCodeType::INVALID_DATA,
+                        StatusCode::BAD_REQUEST,
+                    );
+                    Err(resp)
+                }
+                Err(e) => {
+                    log::error!("Can't check ownership: {:?}", e);
+                    Err(StatusCode::INTERNAL_SERVER_ERROR.into_response())
+                }
+            }
+        }
+        _ => Err(StatusCode::FORBIDDEN.into_response()),
+    }
+}
+
+async fn get_car_route_with_response(
+    service: &CoreServices,
+    claim: &Claims,
+    payload: &RouteRequest,
+) -> Result<Vec<PointData>, Response> {
+    let serv = match service {
+        CoreServices::RouteGetService(s) => s,
+        _ => return Err(StatusCode::INTERNAL_SERVER_ERROR.into_response()),
+    };
+
+    match serv
         .get_car_route_with_user_id(claim.id, &payload.gos_num, &payload.date)
         .await
     {
-        Ok(route) => route,
-        Err(e) => match e {
-            ServiceError::InvalidDataError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::INVALID_DATA) as isize;
-                status.message = format!("Invalid {e}");
-
-                log::warn!("Sended error response {:#?}", status);
-                return (StatusCode::BAD_REQUEST, Json(status)).into_response();
-            }
-            ServiceError::NotFoundError(e) => {
-                status.code =
-                    ResponseStatusCode::from(&e, ResponseStatusCodeType::NOT_FOUNDED_DATA) as isize;
-                status.message = format!("Not founded {e}");
-
-                log::warn!("Sended error response {:#?}", status);
-                return (StatusCode::NOT_FOUND, Json(status)).into_response();
-            }
-            _ => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-        },
-    };
-
-    log::info!("Sended response {:#?}", route);
-
-    Json(RouteResponse { route }).into_response()
+        Ok(route) => Ok(route),
+        Err(ServiceError::InvalidDataError(e)) => {
+            let resp = build_error_response(&e, ResponseStatusCodeType::INVALID_DATA, StatusCode::BAD_REQUEST);
+            Err(resp)
+        }
+        Err(ServiceError::NotFoundError(e)) => {
+            let resp = build_error_response(
+                &e,
+                ResponseStatusCodeType::NOT_FOUNDED_DATA,
+                StatusCode::NOT_FOUND,
+            );
+            Err(resp)
+        }
+        Err(e) => {
+            log::error!("Unhandled route service error: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR.into_response())
+        }
+    }
 }

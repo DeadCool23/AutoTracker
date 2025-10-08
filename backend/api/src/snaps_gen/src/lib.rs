@@ -42,43 +42,76 @@ async fn get_rand_gos_num_from_db<Rand: Rng>(
     }
 }
 
-pub async fn gen_snap<Rand: Rng>(rng: &mut Rand) -> Option<Snap> {
-    let car_repo = match DataContainer::get("car_repo").await {
-        Some(Repositories::CarRepo(repo)) => repo,
-        _ => return None,
-    };
-
-    let camera_repo = match DataContainer::get("camera_repo").await {
-        Some(Repositories::CameraRepo(repo)) => repo,
-        _ => return None,
-    };
-
-    let camera = match get_rand_camera(rng, camera_repo).await {
-        Some(c) => c,
+async fn get_repo_car() -> Option<Box<dyn CarRepository>> {
+    match DataContainer::get("car_repo").await {
+        Some(Repositories::CarRepo(repo)) => Some(repo),
         _ => {
+            log::error!("Can't get CarRepository");
+            None
+        }
+    }
+}
+
+async fn get_repo_camera() -> Option<Box<dyn CameraRepository>> {
+    match DataContainer::get("camera_repo").await {
+        Some(Repositories::CameraRepo(repo)) => Some(repo),
+        _ => {
+            log::error!("Can't get CameraRepository");
+            None
+        }
+    }
+}
+
+async fn get_random_camera_safe<R: Rng>(
+    rng: &mut R,
+    camera_repo: Box<dyn CameraRepository>,
+) -> Option<Camera> {
+    match get_rand_camera(rng, camera_repo).await {
+        Some(c) => Some(c),
+        None => {
             log::error!("Can't get random camera");
-            return None;
+            None
         }
-    };
+    }
+}
 
-    let gos_num = match get_rand_gos_num_from_db(rng, car_repo).await {
-        Some(gn) => gn,
-        _ => {
+async fn get_random_gos_num_safe<R: Rng>(
+    rng: &mut R,
+    car_repo: Box<dyn CarRepository>,
+) -> Option<String> {
+    match get_rand_gos_num_from_db(rng, car_repo).await {
+        Some(gn) => Some(gn),
+        None => {
             log::error!("Can't get random gos_num");
-            return None;
+            None
         }
-    };
+    }
+}
 
+fn current_time_and_date() -> (String, String) {
     let now = Local::now();
-
     let time = now.format("%H:%M").to_string();
     let date = now.format("%d.%m.%Y").to_string();
+    (time, date)
+}
 
-    let speed = if camera.is_radar {
+fn generate_speed_if_radar<R: Rng>(rng: &mut R, is_radar: bool) -> Option<u16> {
+    if is_radar {
         Some(rng.random_range(40..=MAX_SPEED))
     } else {
         None
-    };
+    }
+}
+
+pub async fn gen_snap<Rand: Rng>(rng: &mut Rand) -> Option<Snap> {
+    let car_repo = get_repo_car().await?;
+    let camera_repo = get_repo_camera().await?;
+
+    let camera = get_random_camera_safe(rng, camera_repo).await?;
+    let gos_num = get_random_gos_num_safe(rng, car_repo).await?;
+
+    let (time, date) = current_time_and_date();
+    let speed = generate_speed_if_radar(rng, camera.is_radar);
 
     let snap = Snap {
         speed,
@@ -87,6 +120,7 @@ pub async fn gen_snap<Rand: Rng>(rng: &mut Rand) -> Option<Snap> {
         date,
         gos_num,
     };
+
     log::info!("Generated snap: {:#?}", snap);
     Some(snap)
 }

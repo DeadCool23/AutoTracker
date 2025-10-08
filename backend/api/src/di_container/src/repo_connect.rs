@@ -103,94 +103,117 @@ impl DataContainer {
             .expect("Incorrect DB var. Avalible DB: postgres, clickhouse");
 
         match name {
-            "snap_repo" => {
-                let snap_repo = match db {
-                    AvailableDB::Postgres => {
-                        let psql_snap_repo = match PgSnapRepo::from(&PG_URL).await {
-                            Ok(repo) => repo,
-                            Err(e) => {
-                                log::error!("Can't connect to redis: {}", e);
-                                return None;
-                            }
-                        };
-                        log::debug!("Getted PgSnapRepo");
-
-                        let redis_snap_repo = match RedisSnapRepo::from(&REDIS_URL) {
-                            Ok(repo) => repo,
-                            Err(e) => {
-                                log::error!("Can't connect to redis: {}", e);
-                                return None;
-                            }
-                        };
-                        log::debug!("Getted RedisSnapRepo");
-
-                        let tandem_snap_repo = TandemSnapRepo::from(
-                            Box::new(psql_snap_repo),
-                            Box::new(redis_snap_repo),
-                        )
-                        .with_threshold(TANDEM_THRESHOLD);
-                        log::debug!(
-                            "Formed TandemSnapRepo where:
-                                - main_storage: PgSnapRepo
-                                - extra_storage: RedisSnapRepo
-                        "
-                        );
-
-                        Repositories::SnapRepo(Box::new(tandem_snap_repo))
-                    }
-                    AvailableDB::ClickHouse => {
-                        select_repository!(
-                            AvailableDB::ClickHouse,
-                            PgSnapRepo,
-                            ClickHouseSnapRepo,
-                            Repositories::SnapRepo
-                        )
-                    }
-                };
-
-                log::info!("Sending SnapRepository");
-                Some(snap_repo)
-            }
-            "user_repo" => {
-                let res =
-                    select_repository!(db, PgUserRepo, ClickHouseUserRepo, Repositories::UserRepo);
-
-                log::info!("Sending UserRepository");
-                Some(res)
-            }
-            "camera_repo" => {
-                let res = select_repository!(
-                    db,
-                    PgCameraRepo,
-                    ClickHouseCameraRepo,
-                    Repositories::CameraRepo
-                );
-
-                log::info!("Sending CameraRepository");
-                Some(res)
-            }
-            "car_repo" => {
-                let res =
-                    select_repository!(db, PgCarRepo, ClickHouseCarRepo, Repositories::CarRepo);
-
-                log::info!("Sending CarRepository");
-                Some(res)
-            }
-            "track_info_repo" => {
-                let res = select_repository!(
-                    db,
-                    PgTrackInfoRepo,
-                    ClickHouseTrackInfoRepo,
-                    Repositories::TrackInfoRepo
-                );
-
-                log::info!("Sending TrackInfoRepository");
-                Some(res)
-            }
+            "snap_repo" => Self::build_snap_repo(db).await,
+            "user_repo" => Self::build_user_repo(db).await,
+            "camera_repo" => Self::build_camera_repo(db).await,
+            "car_repo" => Self::build_car_repo(db).await,
+            "track_info_repo" => Self::build_track_info_repo(db).await,
             _ => {
-                log::error!("Incorrect data access key");
-                panic!("Incorrect data acces key");
+                log::error!("Incorrect data access key: {}", name);
+                None
             }
         }
+    }
+
+    async fn connect_volatile_pg_snap_repo() -> Option<PgSnapRepo> {
+        match PgSnapRepo::from(&PG_URL).await {
+            Ok(repo) => {
+                log::debug!("Connected to PgSnapRepo");
+                Some(repo)
+            }
+            Err(e) => {
+                log::error!("Can't connect to Postgres SnapRepo: {}", e);
+                None
+            }
+        }
+    }
+
+    fn connect_volatile_redis_snap_repo() -> Option<RedisSnapRepo> {
+        match RedisSnapRepo::from(&REDIS_URL) {
+            Ok(repo) => {
+                log::debug!("Connected to RedisSnapRepo");
+                Some(repo)
+            }
+            Err(e) => {
+                log::error!("Can't connect to Redis SnapRepo: {}", e);
+                None
+            }
+        }
+    }
+
+    fn create_tandem_snap_repo(psql_repo: PgSnapRepo, redis_repo: RedisSnapRepo) -> TandemSnapRepo {
+        let tandem = TandemSnapRepo::from(Box::new(psql_repo), Box::new(redis_repo))
+            .with_threshold(TANDEM_THRESHOLD);
+
+        log::debug!("Formed TandemSnapRepo (main: PgSnapRepo, extra: RedisSnapRepo)");
+
+        tandem
+    }
+
+    async fn build_postgres_snap_repo() -> Option<Repositories> {
+        let psql_repo = Self::connect_volatile_pg_snap_repo().await?;
+        log::debug!("Getted PgSnapRepo");
+
+        let redis_repo = Self::connect_volatile_redis_snap_repo()?;
+        log::debug!("Getted RedisSnapRepo");
+
+        let tandem = Self::create_tandem_snap_repo(psql_repo, redis_repo);
+
+        Some(Repositories::SnapRepo(Box::new(tandem)))
+    }
+
+    async fn build_clickhouse_snap_repo() -> Option<Repositories> {
+        let repo = select_repository!(
+            AvailableDB::ClickHouse,
+            PgSnapRepo,
+            ClickHouseSnapRepo,
+            Repositories::SnapRepo
+        );
+
+        Some(repo)
+    }
+
+    async fn build_snap_repo(db: AvailableDB) -> Option<Repositories> {
+        let repo = match db {
+            AvailableDB::Postgres => Self::build_postgres_snap_repo().await?,
+            AvailableDB::ClickHouse => Self::build_clickhouse_snap_repo().await?,
+        };
+
+        log::info!("Sending SnapRepository");
+        Some(repo)
+    }
+
+    async fn build_user_repo(db: AvailableDB) -> Option<Repositories> {
+        let repo = select_repository!(db, PgUserRepo, ClickHouseUserRepo, Repositories::UserRepo);
+        log::info!("Sending UserRepository");
+        Some(repo)
+    }
+
+    async fn build_camera_repo(db: AvailableDB) -> Option<Repositories> {
+        let repo = select_repository!(
+            db,
+            PgCameraRepo,
+            ClickHouseCameraRepo,
+            Repositories::CameraRepo
+        );
+        log::info!("Sending CameraRepository");
+        Some(repo)
+    }
+
+    async fn build_car_repo(db: AvailableDB) -> Option<Repositories> {
+        let repo = select_repository!(db, PgCarRepo, ClickHouseCarRepo, Repositories::CarRepo);
+        log::info!("Sending CarRepository");
+        Some(repo)
+    }
+
+    async fn build_track_info_repo(db: AvailableDB) -> Option<Repositories> {
+        let repo = select_repository!(
+            db,
+            PgTrackInfoRepo,
+            ClickHouseTrackInfoRepo,
+            Repositories::TrackInfoRepo
+        );
+        log::info!("Sending TrackInfoRepository");
+        Some(repo)
     }
 }

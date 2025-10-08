@@ -53,30 +53,54 @@ pub async fn get_insert_measure(
 }
 
 #[allow(unreachable_patterns)]
+async fn warmup_inserts(repo: &PgSnapRepo, insert_type: InsertType) -> Result<(), String> {
+    let mut rng = StdRng::from_os_rng();
+    let snaps = gen_snaps(1, &mut rng).await;
+
+    let insert_result = match insert_type {
+        InsertType::ByOne => repo.insert_snaps_by_one(&snaps).await,
+        InsertType::ByValues => repo.insert_snaps_by_values(&snaps).await,
+        InsertType::ByCopy => repo.insert_snaps_by_copy(&snaps).await,
+        _ => return Err("Undefined insert type".to_string()),
+    };
+
+    insert_result.map_err(|e| format!("Insert failed: {}", e))?;
+    repo.delete_snaps(&snaps)
+        .await
+        .map_err(|e| format!("Delete failed: {}", e))?;
+
+    Ok(())
+}
+
+async fn measure_insert_duration(
+    insert_cnt: usize,
+    insert_type: InsertType,
+    repo: &PgSnapRepo,
+) -> f64 {
+    log::info!("Measuring insert for {} snaps", insert_cnt);
+    get_insert_measure(insert_cnt, insert_type, repo).await
+}
+
 pub async fn get_insert_measures(insert_cnts: &[usize], insert_type: InsertType) -> Vec<f64> {
-    let snaps_repo = PgSnapRepo::from(&PG_URL).await.unwrap();
-    let mut res = Vec::with_capacity(insert_cnts.len());
-
-    {
-        let mut rng = StdRng::from_os_rng();
-        let snaps = gen_snaps(1, &mut rng).await;
-
-        let _ = match insert_type {
-            InsertType::ByOne => snaps_repo.insert_snaps_by_one(&snaps).await,
-            InsertType::ByValues => snaps_repo.insert_snaps_by_values(&snaps).await,
-            InsertType::ByCopy => snaps_repo.insert_snaps_by_copy(&snaps).await,
-            _ => panic!("Undefined insert type"),
+    let snaps_repo = match PgSnapRepo::from(&PG_URL).await {
+        Ok(repo) => repo,
+        Err(e) => {
+            log::error!("Failed to connect PgSnapRepo: {}", e);
+            return Vec::new();
         }
-        .unwrap();
-        snaps_repo.delete_snaps(&snaps).await.unwrap();
+    };
+
+    if let Err(e) = warmup_inserts(&snaps_repo, insert_type).await {
+        log::error!("Warmup failed: {}", e);
+        return Vec::new();
     }
 
+    let mut results = Vec::with_capacity(insert_cnts.len());
     for &insert_cnt in insert_cnts {
-        log::info!("Getting mesures for {} insert count", insert_cnt);
-        let duration = get_insert_measure(insert_cnt, insert_type, &snaps_repo).await;
-        res.push(duration);
-        println!("{}: {}", insert_cnt, duration);
+        let duration = measure_insert_duration(insert_cnt, insert_type, &snaps_repo).await;
+        log::info!("Insert count {}: {:.3} sec", insert_cnt, duration);
+        results.push(duration);
     }
 
-    res
+    results
 }

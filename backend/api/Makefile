@@ -114,6 +114,12 @@ TEST_REPORT_FILENAME=test_report.json
 test-report:
 	@./allure_report.sh
 
+check-cyclomatic:
+	@cd ./src && cargo clippy -- -A clippy::all -D clippy::cyclomatic_complexity
+
+check-fmt:
+	@cd ./src && cargo fmt --check
+
 log-info:
 	@echo "=$(BOLD_GREEN)INFO$(RESET)==================================================================================="
 	@echo "$(BOLD)Исполнямые файлы:$(RESET)"

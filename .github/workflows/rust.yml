@@ -133,8 +133,8 @@ jobs:
     - name: Save Allure report cache
       uses: actions/cache@v3
       with:
-        path: ./backend/api/allure-history-cache
-        key: allure-history-${{ github.ref_name }}
+        path: ./backend/api/allure-report
+        key: allure-report-${{ github.ref_name }}
     
     - name: Upload Allure report
       uses: actions/upload-artifact@v4

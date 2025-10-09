@@ -28,6 +28,11 @@ jobs:
     - name: Check Halstead complexity
       working-directory: ./backend/api
       run: make check-halstead
+    - name: Save detailed Halstead metrics
+      uses: actions/upload-artifact@v4
+      with:
+        name: halstead_metrics.json
+        path: ./backend/api/halstead_metrics.json
     
   test:
     runs-on: ubuntu-latest

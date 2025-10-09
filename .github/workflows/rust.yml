@@ -106,12 +106,13 @@ jobs:
           fi
         done
     
-    - name: Restore Allure history
-      uses: actions/download-artifact@v4
+    - name: Restore Allure report cache
+      uses: actions/cache@v3
       with:
-        name: allure-report
         path: ./backend/api/allure-report
-      continue-on-error: true
+        key: allure-report-${{ github.ref_name }}
+        restore-keys: |
+          allure-report-
 
     - name: Allure report
       working-directory: ./backend/api
@@ -122,6 +123,18 @@ jobs:
         cargo install cargo2junit
 
         make test-report
+    
+    - name: Delete old Allure cache
+      run: |
+        gh cache list --repo $GITHUB_REPOSITORY | grep "allure-report-${{ github.ref_name }}" | awk '{print $1}' | xargs -r -n1 gh cache delete --repo $GITHUB_REPOSITORY
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Save Allure report cache
+      uses: actions/cache@v3
+      with:
+        path: ./backend/api/allure-history-cache
+        key: allure-history-${{ github.ref_name }}
     
     - name: Upload Allure report
       uses: actions/upload-artifact@v4

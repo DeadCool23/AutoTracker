@@ -107,12 +107,11 @@ jobs:
         done
     
     - name: Restore Allure history
-      uses: actions/cache@v3
+      uses: actions/download-artifact@v4
       with:
-        path: ./backend/api/allure-history-cache
-        key: allure-history-${{ github.ref_name }}
-        restore-keys: |
-          allure-history-
+        name: allure-report
+        path: ./backend/api/allure-report
+      continue-on-error: true
 
     - name: Allure report
       working-directory: ./backend/api
@@ -122,25 +121,9 @@ jobs:
         sudo apt-get install -y xmlstarlet
         cargo install cargo2junit
 
-        if [ -d "allure-history-cache" ]; then
-          mkdir -p allure-report
-          cp -r allure-history-cache/. allure-report/history/ || true
-        fi
-        
         make test-report
-
-        if [ -d "allure-report/history" ]; then
-          mkdir -p allure-history-cache
-          cp -r allure-report/history/. allure-history-cache/ || true
-        fi
-
-    - name: Save Allure history
-      uses: actions/cache@v3
-      with:
-        path: ./backend/api/allure-history-cache
-        key: allure-history-${{ github.ref_name }}
     
-    - name: Save Allure report
+    - name: Upload Allure report
       uses: actions/upload-artifact@v4
       with:
         name: allure-report

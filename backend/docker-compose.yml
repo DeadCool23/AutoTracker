@@ -53,6 +53,25 @@ services:
     container_name: test-container
     volumes:
       - "./allure-report:/app/api/allure-report"
+  
+  autotracker-api:
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    container_name: autotracker-api
+    restart: always
+    environment:
+      - POSTGRES_ADDRESS=postgres
+      - CLICKHOUSE_ADDRESS=clickhouse
+      - REDIS_ADDRESS=redis
+    ports:
+      - "9090:9887"
+    depends_on:
+      - postgres
+      - clickhouse
+      - redis
+    networks:
+      - db
 
 volumes:
   redis_data:

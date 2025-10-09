@@ -63,9 +63,15 @@ const VERSION: u8 = 1;
     ),
     servers(
         (url = "http://127.0.0.1:9887", description = "Local server"),
-        (url = "http://{url}:9887", description = "Local network API",
+        (url = "http://{address}:9887", description = "Local network API",
             variables(
-                ("url" = (default = "0.0.0.0", description = "Default local network")),
+                ("address" = (default = "0.0.0.0", description = "Default network address")),
+            )
+        ),
+        (url = "http://{address}:{port}", description = "API network",
+            variables(
+                ("address" = (default = "0.0.0.0", description = "Default network address")),
+                ("port" = (default = "9887", description = "Default network port")),
             )
         ),
     ),

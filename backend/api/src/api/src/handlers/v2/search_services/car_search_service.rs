@@ -1,5 +1,5 @@
-use super::{get_auth_data, validate_pagination, handle_search_error};
 use super::VERSION;
+use super::{get_auth_data, handle_search_error, validate_pagination};
 use super::{CoreServices, ServicesContainer};
 use crate::paths::{vpath, CAR_SEARCH_SERVICE_PATH as PATH};
 use axum::response::{IntoResponse, Response};
@@ -119,11 +119,13 @@ pub async fn handle_search_cars_by_filters_with_offset_v2(
     {
         Ok(cars) => {
             let new_offset = offset + cars.len();
-            let response = CarSearcherResponse { cars, offset: new_offset };
+            let response = CarSearcherResponse {
+                cars,
+                offset: new_offset,
+            };
             log::info!("Sending response {:#?}", response);
             Json(response).into_response()
-        },
+        }
         Err(e) => handle_search_error(e),
     }
 }
-

@@ -1,5 +1,5 @@
-use super::{get_auth_data, validate_pagination, handle_search_error};
 use super::VERSION;
+use super::{get_auth_data, handle_search_error, validate_pagination};
 use super::{CoreServices, ServicesContainer};
 use crate::paths::{vpath, TRACK_INFO_SEARCH_SERVICE_PATH as PATH};
 use axum::response::{IntoResponse, Response};
@@ -124,7 +124,7 @@ pub async fn handle_search_track_info_by_filters_with_offset_v2(
             };
             log::info!("Sending response {:#?}", response);
             Json(response).into_response()
-        },
+        }
         Err(e) => handle_search_error(e),
     }
 }

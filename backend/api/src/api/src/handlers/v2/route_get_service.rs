@@ -110,7 +110,10 @@ async fn verify_user_access(
     match claim.role {
         Role::audit => Ok(()),
         Role::user => {
-            match serv.is_car_owned_by_user(claim.id, &gos_num.to_string()).await {
+            match serv
+                .is_car_owned_by_user(claim.id, &gos_num.to_string())
+                .await
+            {
                 Ok(true) => Ok(()),
                 Ok(false) => {
                     log::warn!("User {} not owner of car {}", claim.id, gos_num);
@@ -150,7 +153,11 @@ async fn get_car_route_with_response(
     {
         Ok(route) => Ok(route),
         Err(ServiceError::InvalidDataError(e)) => {
-            let resp = build_error_response(&e, ResponseStatusCodeType::INVALID_DATA, StatusCode::BAD_REQUEST);
+            let resp = build_error_response(
+                &e,
+                ResponseStatusCodeType::INVALID_DATA,
+                StatusCode::BAD_REQUEST,
+            );
             Err(resp)
         }
         Err(ServiceError::NotFoundError(e)) => {

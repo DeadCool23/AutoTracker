@@ -82,8 +82,7 @@ fn handle_passport_conf_error(err: ServiceError) -> Response {
             (StatusCode::BAD_REQUEST, Json(status)).into_response()
         }
         ServiceError::IsExistError(e) => {
-            status.code =
-                ResponseStatusCode::from(&e, ResponseStatusCodeType::EXIST_DATA) as isize;
+            status.code = ResponseStatusCode::from(&e, ResponseStatusCodeType::EXIST_DATA) as isize;
             status.message = format!("{e} already exists");
             log::warn!("Conflict: {e}");
             (StatusCode::CONFLICT, Json(status)).into_response()
@@ -96,7 +95,10 @@ fn handle_passport_conf_error(err: ServiceError) -> Response {
             (StatusCode::NOT_FOUND, Json(status)).into_response()
         }
         _ => {
-            log::error!("Internal server error during passport confirmation: {:?}", err);
+            log::error!(
+                "Internal server error during passport confirmation: {:?}",
+                err
+            );
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
     }

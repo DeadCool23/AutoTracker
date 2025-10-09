@@ -110,9 +110,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
-        key: allure-report-${{ github.ref_name }}
+        key: allure-report-${{ github.ref_name }}-${{ github.run_number }}
         restore-keys: |
-          allure-report-
+          allure-report-${{ github.ref_name }}-
 
     - name: Allure report
       working-directory: ./backend/api
@@ -124,17 +124,11 @@ jobs:
 
         make test-report
     
-    - name: Delete old Allure cache
-      run: |
-        gh cache list --repo $GITHUB_REPOSITORY | grep "allure-report-${{ github.ref_name }}" | awk '{print $1}' | xargs -r -n1 gh cache delete --repo $GITHUB_REPOSITORY
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
     - name: Save Allure report cache
       uses: actions/cache@v3
       with:
         path: ./backend/api/allure-report
-        key: allure-report-${{ github.ref_name }}
+        key: allure-report-${{ github.ref_name }}-${{ github.run_number }}
     
     - name: Upload Allure report
       uses: actions/upload-artifact@v4

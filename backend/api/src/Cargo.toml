@@ -11,5 +11,5 @@ members = [
     "logger",
     "snap_insert_mes",
     "snaps_gen",
-    "jwt_processing"
+    "jwt_processing",
 ]

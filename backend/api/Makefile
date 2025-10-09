@@ -112,10 +112,13 @@ e2e-test:
 
 TEST_REPORT_FILENAME=test_report.json
 test-report:
-	@./allure_report.sh
+	@./scripts/allure_report.sh
 
 check-cyclomatic:
 	@cd ./src && cargo clippy -- -A clippy::all -D clippy::cyclomatic_complexity
+
+check-halstead:
+	@python3 ./scripts/halstead_metrics.py
 
 check-fmt:
 	@cd ./src && cargo fmt --check

@@ -66,6 +66,8 @@ services:
       - REDIS_ADDRESS=redis
     ports:
       - "9090:9887"
+    volumes:
+      - "./logs:/app/logs"
     depends_on:
       - postgres
       - clickhouse

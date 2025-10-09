@@ -63,15 +63,15 @@ const VERSION: u8 = 1;
     ),
     servers(
         (url = "http://127.0.0.1:9887", description = "Local server"),
-        (url = "http://{address}:9887", description = "Local network API",
+        (url = "http://{address}:9887", description = "Local network API server",
             variables(
-                ("address" = (default = "0.0.0.0", description = "Default network address")),
+                ("address" = (default = "127.0.0.1", description = "Default network address")),
             )
         ),
-        (url = "http://{address}:{port}", description = "API network",
+        (url = "http://{address}:{port}", description = "Docker API server",
             variables(
-                ("address" = (default = "0.0.0.0", description = "Default network address")),
-                ("port" = (default = "9887", description = "Default network port")),
+                ("address" = (default = "127.0.0.1", description = "Default docker network address")),
+                ("port" = (default = "9090", description = "Default docker network port")),
             )
         ),
     ),

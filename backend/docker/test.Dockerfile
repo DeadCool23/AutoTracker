@@ -29,15 +29,15 @@ RUN ALLURE_VERSION=2.27.0 && \
     
 WORKDIR /app
 
-COPY ./api ./api
+COPY ../api ./api
 
-COPY ./db ./db
+COPY ../db ./db
 
-COPY ./db/data /data
+COPY ../db/data /data
 
-COPY ./.env .
+COPY ../.env .
 
-COPY .run-tests.sh .
+COPY ../scripts/.run-tests.sh .
 RUN chmod +x .run-tests.sh
 
 CMD [ "./.run-tests.sh" ]

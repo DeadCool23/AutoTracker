@@ -49,7 +49,7 @@ services:
   test-container:
     build:
       context: .
-      dockerfile: test.Dockerfile
+      dockerfile: ./docker/test.Dockerfile
     container_name: test-container
     volumes:
       - "./allure-report:/app/api/allure-report"
@@ -57,7 +57,7 @@ services:
   autotracker-api:
     build:
       context: .
-      dockerfile: api.Dockerfile
+      dockerfile: ./docker/api.Dockerfile
     container_name: autotracker-api
     restart: always
     environment:

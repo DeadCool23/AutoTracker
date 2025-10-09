@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     
     steps:
@@ -94,7 +94,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y xmlstarlet
         cargo install cargo2junit
-        ./allure_report.sh
+        make test-report
 
     - name: Save Allure history
       uses: actions/cache@v3

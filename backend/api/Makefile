@@ -110,7 +110,6 @@ integration-test:
 e2e-test:
 	@cd ./src && cargo test endpoint -p api --no-fail-fast --tests
 
-TEST_REPORT_FILENAME=test_report.json
 test-report:
 	@./scripts/allure_report.sh
 

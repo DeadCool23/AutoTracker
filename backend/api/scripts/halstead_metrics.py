@@ -162,9 +162,9 @@ def main():
     
     avg_difficulty = total_metrics['difficulty'] / file_count
     if file_count > 0:
-        print(f"\n{'='*50}")
+        print(f"\n{'='*45}")
         print("СВОДКА")
-        print(f"{'='*50}")
+        print(f"{'='*45}")
         print(f"Проанализировано файлов: {file_count}")
         print(f"Всего операторов: {total_metrics['N1']}")
         print(f"Всего операндов: {total_metrics['N2']}")

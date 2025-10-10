@@ -97,3 +97,4 @@ allure-re*/
 .docker
 logs
 *.log
+halstead_metrics.json

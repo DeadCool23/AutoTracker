@@ -3,6 +3,9 @@ set -e  # если какая-то команда аварийно заверш�
 
 cd ./backend/api || exit 1
 
+echo "=== FORMAT CHECK ==="
+echo ""
+
 make check-fmt
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
@@ -11,6 +14,10 @@ if [ $RESULT -ne 0 ]; then
 else
   echo "Code formatting check passed."
 fi
+
+echo ""
+echo "=== CYCLOMATIC CHECK ==="
+echo ""
 
 make check-cyclomatic
 RESULT=$?
@@ -21,6 +28,10 @@ else
   echo "Cyclomatic complexity check passed."
 fi
 
+echo ""
+echo "=== HALSTEAD CHECK ==="
+echo ""
+
 make check-halstead
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
@@ -30,5 +41,6 @@ else
   echo "Halstead complexity check passed."
 fi
 
-echo "All pre-commit checks passed successfully!"
+echo ""
+echo "=== All pre-commit checks passed successfully!"
 exit 0

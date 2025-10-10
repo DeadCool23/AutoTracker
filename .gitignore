@@ -98,3 +98,4 @@ allure-re*/
 logs
 *.log
 halstead_metrics.json
+*.d/

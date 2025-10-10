@@ -1,6 +1,6 @@
 # API документация
 
-**Swagger path:** `{API_URL}/docs/`
+**Swagger path:** `{API_URL}/api/v{VERSION}/docs/`
 
 ## Структура API
 

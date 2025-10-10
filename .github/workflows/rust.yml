@@ -28,6 +28,11 @@ jobs:
     - name: Check Halstead complexity
       working-directory: ./backend/api
       run: make check-halstead
+    - name: Save detailed Halstead metrics
+      uses: actions/upload-artifact@v4
+      with:
+        name: halstead_metrics
+        path: ./backend/api/halstead_metrics.json
     
   test:
     runs-on: ubuntu-latest
@@ -101,13 +106,13 @@ jobs:
           fi
         done
     
-    - name: Restore Allure history
+    - name: Restore Allure report cache
       uses: actions/cache@v3
       with:
-        path: ./backend/api/allure-history-cache
-        key: allure-history-${{ github.ref_name }}
+        path: ./backend/api/allure-report
+        key: allure-report-${{ github.ref_name }}-${{ github.run_number }}
         restore-keys: |
-          allure-history-
+          allure-report-${{ github.ref_name }}-
 
     - name: Allure report
       working-directory: ./backend/api
@@ -117,25 +122,15 @@ jobs:
         sudo apt-get install -y xmlstarlet
         cargo install cargo2junit
 
-        if [ -d "allure-history-cache" ]; then
-          mkdir -p allure-report
-          cp -r allure-history-cache/. allure-report/history/ || true
-        fi
-        
         make test-report
-
-        if [ -d "allure-report/history" ]; then
-          mkdir -p allure-history-cache
-          cp -r allure-report/history/. allure-history-cache/ || true
-        fi
-
-    - name: Save Allure history
+    
+    - name: Save Allure report cache
       uses: actions/cache@v3
       with:
-        path: ./backend/api/allure-history-cache
-        key: allure-history-${{ github.ref_name }}
+        path: ./backend/api/allure-report
+        key: allure-report-${{ github.ref_name }}-${{ github.run_number }}
     
-    - name: Save Allure report
+    - name: Upload Allure report
       uses: actions/upload-artifact@v4
       with:
         name: allure-report

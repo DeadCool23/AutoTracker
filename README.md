@@ -40,13 +40,13 @@
 
 ## Use-case diagram
 
-![use-case](./misc/images/use_case.png)
+![use-case](./static/images/use_case.png)
 
 ---
 
 ## ER diagram
 
-![er](./misc/images/er.jpg)
+![er](./static/images/er.jpg)
 
 ---
 
@@ -60,7 +60,7 @@
 
 ## BPMN
 
-![bpmn](./misc/images/bpmn.jpg)
+![bpmn](./static/images/bpmn.jpg)
 
 ---
 
@@ -83,10 +83,10 @@
 
 ---
 
-![comps](./misc/images/components.png)
+![comps](./static/images/components.png)
 
 ## Диаграммы классов
 
 ---
 
-![uml](./misc/images/uml.png)
+![uml](./static/images/uml.png)

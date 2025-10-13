@@ -26,6 +26,24 @@ services:
       - ${PROJECT_ROOT}/db/data:/data
     networks:
       - db
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - "9999:80"
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@autotracker.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-1234}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    depends_on:
+      - postgres
+    volumes:
+      - ./docker/data/pgadmin/servers.json:/pgadmin4/servers.json
+      - ./docker/data/pgadmin/.pgpass:/pgadmin4/.pgpass
+    networks:
+      - db
   
   clickhouse:
     image: clickhouse/clickhouse-server:latest
@@ -81,6 +99,7 @@ services:
     restart: always
     depends_on:
       - autotracker-api
+      - pgadmin
     ports:
       - "8181:8181"
     volumes:

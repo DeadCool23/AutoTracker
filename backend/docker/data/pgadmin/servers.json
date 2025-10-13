@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "AutoTracker DB",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "auto_tracker",
+      "Username": "nisu",
+      "SSLMode": "prefer"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nginx Status</title>
+  <link rel="stylesheet" href="/status-ui/style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>NGINX Status</h1>
+      <p class="sub">Интерактивная панель состояния (через <code>/status</code>)</p>
+    </header>
+
+    <section class="cards">
+      <div class="card" id="active-connections">
+        <div class="card-title">Active connections</div>
+        <div class="card-value" id="value-active">–</div>
+      </div>
+
+      <div class="card" id="accepts-handled-requests">
+        <div class="card-title">accepts / handled / requests</div>
+        <div class="card-value" id="value-ahr">–</div>
+      </div>
+
+      <div class="card" id="reading-writing-waiting">
+        <div class="card-title">Reading · Writing · Waiting</div>
+        <div class="card-value" id="value-rww">–</div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-title">Requests / s (скользящая)</div>
+        <canvas id="spark" width="300" height="80"></canvas>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="meta" id="last-updated">Последнее обновление: —</div>
+      <div class="controls">
+        <label>Интервал обновления:
+          <select id="poll-interval">
+            <option value="2000">2s</option>
+            <option value="5000" selected>5s</option>
+            <option value="15000">15s</option>
+            <option value="0">Отключено</option>
+          </select>
+        </label>
+        <button id="refresh-btn">Обновить сейчас</button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/status-ui/app.js"></script>
+</body>
+</html>

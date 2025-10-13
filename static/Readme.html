@@ -1,127 +1,498 @@
-<h1 id="сервис-для-отслеживания-маршрутов-по-камерам">Сервис для
-отслеживания маршрутов по камерам</h1>
-<hr />
-<h2 id="описание">Описание</h2>
-<p>Сервис фиксирует передвижение автомобилей с помощью дорожных камер,
-которые регистрируют номер, скорость и время проезда. Пользователи могут
-просматривать только свои маршруты, тогда как операторы могут искать
-данные по номеру, марке и владельцу автомобиля. Аудиты контролируют
-доступ к информации и ведут логи всех запросов.</p>
-<hr />
-<h2 id="предметная-область">Предметная область</h2>
-<p>Системы отслеживания маршрутов по камерам фиксируют перемещение
-транспортных средств с помощью видеокамер и технологий автоматического
-распознавания номеров (ALPR). Они позволяют контролировать дорожную
-обстановку, находить угнанные автомобили, анализировать трафик и
-оптимизировать логистику. Такие системы применяются в правоохранительных
-органах, транспортных компаниях и городском управлении для повышения
-безопасности и эффективности передвижения.</p>
-<hr />
-<h2 id="конкуренты">Конкуренты</h2>
-<table>
-<colgroup>
-<col style="width: 16%" />
-<col style="width: 28%" />
-<col style="width: 28%" />
-<col style="width: 26%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Критерий</th>
-<th>NSCAR.online</th>
-<th>TRACE</th>
-<th>СитиПоинт</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Функциональность</td>
-<td>Онлайн-мониторинг автопарка, архив видеозаписей</td>
-<td>Видеонаблюдение + ГЛОНАСС/GPS, облачное хранение</td>
-<td>Видеомониторинг транспорта, анализ резких манёвров</td>
-</tr>
-<tr class="even">
-<td>Целевая аудитория</td>
-<td>Владельцы автопарков, логисты</td>
-<td>Транспортные компании, спецтехника</td>
-<td>Городской транспорт, служебные автомобили</td>
-</tr>
-<tr class="odd">
-<td>Способы хранения данных</td>
-<td>Локально и в облаке</td>
-<td>Полностью облачное решение</td>
-<td>Локальные серверы + облако</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="актуальность">Актуальность</h2>
-<p>Разработка системы отслеживания маршрутов по камерам актуальна в
-условиях роста транспортных потоков, необходимости повышения
-безопасности и эффективного управления дорожным движением. Внедрение
-подобных систем способствует повышению прозрачности транспортных
-процессов, сокращению преступности.</p>
-<hr />
-<h2 id="роли">Роли</h2>
-<ul>
-<li>Пользователь - может отслеживать маршруты своих автомобилей</li>
-<li>Оператор - может отслеживать все маршруты для выевления аномалий
-поведений</li>
-<li>Аудит - может отслеживать логи поисков операторов и
-пользователей</li>
-</ul>
-<hr />
-<h2 id="use-case-diagram">Use-case diagram</h2>
-<figure>
-<img src="./images/use_case.png" alt="use-case" style="width: auto; height: 75%;" />
-</figure>
-<hr />
-<h2 id="er-diagram">ER diagram</h2>
-<figure>
-<img src="./images/er.jpg" alt="er" style="width: 75%; height: auto;" />
-</figure>
-<hr />
-<h2 id="пользовательские-сценарии">Пользовательские сценарии</h2>
-<ul>
-<li>Пользователь: Авторизируется, регистрируется, следит за марштртами
-<u>своих</u> автомобилей;</li>
-<li>Оператор: Авторизируется, следит за маршрутами всех
-автомобилей;</li>
-<li>Аудит: Авторизируется, просматривает логи отслеживания маршрутов
-операторами и пользователями.</li>
-</ul>
-<hr />
-<h2 id="bpmn">BPMN</h2>
-<figure>
-<img src="./images/bpmn.jpg" alt="bpmn"  style="width: 70%; height: auto;"/>
-</figure>
-<hr />
-<h2 id="описание-типа-приложения-и-выбранного">Описание типа приложения
-и выбранного</h2>
-<hr />
-<p><strong>Тип приложения:</strong> Мобильное <strong>Технологический
-стэк:</strong></p>
-<ul>
-<li><strong><em>backend:</em></strong>
-<ul>
-<li><em>Язык программирования:</em> Rust</li>
-<li><em>Фреймворк:</em> Axum</li>
-<li><em>СУБД:</em> PostgreSQL, Redis</li>
-</ul></li>
-<li><strong><em>frontend:</em></strong>
-<ul>
-<li><em>Mobile:</em> Swift</li>
-<li><em>Web:</em> HTML + CSS + ReactJS</li>
-</ul></li>
-</ul>
-<h2 id="верхнеуровневое-разбиение-на-компоненты">Верхнеуровневое
-разбиение на компоненты</h2>
-<hr />
-<figure>
-<img src="./images/components.png" alt="comps" style="width: 40%; height: auto;" />
-</figure>
-<h2 id="диаграммы-классов">Диаграммы классов</h2>
-<hr />
-<figure>
-<img src="./images/uml.png" alt="uml"  style="width: 50%; height: auto;" />
-</figure>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Документация</title>
+    <style>
+        :root {
+            --black: #1a1a1a;
+            --dark-gray: #333333;
+            --gray: #666666;
+            --light-gray: #999999;
+            --lighter-gray: #cccccc;
+            --lightest-gray: #f5f5f5;
+            --white: #ffffff;
+            --accent: #2c5aa0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--dark-gray);
+            background: linear-gradient(135deg, var(--lightest-gray) 0%, var(--white) 100%);
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+        
+        header {
+            background: var(--black);
+            color: var(--white);
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 35px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--lighter-gray);
+            color: var(--black);
+            font-weight: 600;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin: 25px 0 12px;
+            color: var(--dark-gray);
+        }
+        
+        p {
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+        }
+        
+        .card {
+            background: var(--white);
+            border: 1px solid var(--lighter-gray);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--lighter-gray), transparent);
+            margin: 35px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid var(--lighter-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--lighter-gray);
+        }
+        
+        th {
+            background-color: var(--dark-gray);
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--lightest-gray);
+        }
+        
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        ul, ol {
+            margin: 18px 0;
+            padding-left: 25px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        
+        .image-container {
+            text-align: center;
+            margin: 28px 0;
+            padding: 20px;
+            background: var(--white);
+            border: 1px solid var(--lighter-gray);
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--lighter-gray);
+            border-radius: 8px;
+        }
+        
+        .image-caption {
+            margin-top: 15px;
+            font-style: italic;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            flex: 1;
+            min-width: 250px;
+            background: var(--white);
+            border: 1px solid var(--lighter-gray);
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .tech-item h3 {
+            color: var(--black);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--lighter-gray);
+        }
+        
+        .role-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .role-card {
+            flex: 1;
+            min-width: 250px;
+            background: var(--white);
+            border: 1px solid var(--lighter-gray);
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .role-card h3 {
+            color: var(--black);
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+        
+        .highlight {
+            background: var(--lightest-gray);
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+        }
+        
+        footer {
+            background: var(--black);
+            color: var(--white);
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+        
+        /* Улучшения для типографики */
+        strong {
+            color: var(--black);
+            font-weight: 700;
+        }
+        
+        u {
+            text-decoration: none;
+            border-bottom: 1px solid var(--black);
+        }
+        
+        .content-wrapper {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            margin: 0 auto 40px;
+            max-width: 1100px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .tech-item, .role-card {
+                min-width: 100%;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .content-wrapper {
+                padding: 25px;
+                margin: 0 15px 30px;
+            }
+            
+            header, footer {
+                border-radius: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .content-wrapper {
+                padding: 20px;
+                margin: 0 10px 25px;
+            }
+            
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>AutoTracker</h1>
+            <p class="subtitle">Сервис для отслеживания маршрутов по камерам</p>
+        </div>
+    </header>
+    
+    <div class="content-wrapper">
+        <div class="card">
+            <h2>Описание</h2>
+            <p>Сервис фиксирует передвижение автомобилей с помощью дорожных камер, которые регистрируют номер, скорость и время проезда. Пользователи могут просматривать только свои маршруты, тогда как операторы могут искать данные по номеру, марке и владельцу автомобиля. Аудиты контролируют доступ к информации и ведут логи всех запросов.</p>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Предметная область</h2>
+            <p>Системы отслеживания маршрутов по камерам фиксируют перемещение транспортных средств с помощью видеокамер и технологий автоматического распознавания номеров (ALPR). Они позволяют контролировать дорожную обстановку, находить угнанные автомобили, анализировать трафик и оптимизировать логистику. Такие системы применяются в правоохранительных органах, транспортных компаниях и городском управлении для повышения безопасности и эффективности передвижения.</p>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Конкуренты</h2>
+            <table>
+                <colgroup>
+                    <col style="width: 16%">
+                    <col style="width: 28%">
+                    <col style="width: 28%">
+                    <col style="width: 26%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Критерий</th>
+                        <th>NSCAR.online</th>
+                        <th>TRACE</th>
+                        <th>СитиПоинт</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Функциональность</td>
+                        <td>Онлайн-мониторинг автопарка, архив видеозаписей</td>
+                        <td>Видеонаблюдение + ГЛОНАСС/GPS, облачное хранение</td>
+                        <td>Видеомониторинг транспорта, анализ резких манёвров</td>
+                    </tr>
+                    <tr>
+                        <td>Целевая аудитория</td>
+                        <td>Владельцы автопарков, логисты</td>
+                        <td>Транспортные компании, спецтехника</td>
+                        <td>Городской транспорт, служебные автомобили</td>
+                    </tr>
+                    <tr>
+                        <td>Способы хранения данных</td>
+                        <td>Локально и в облаке</td>
+                        <td>Полностью облачное решение</td>
+                        <td>Локальные серверы + облако</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Актуальность</h2>
+            <p>Разработка системы отслеживания маршрутов по камерам актуальна в условиях роста транспортных потоков, необходимости повышения безопасности и эффективного управления дорожным движением. Внедрение подобных систем способствует повышению прозрачности транспортных процессов, сокращению преступности.</p>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Роли</h2>
+            <div class="role-list">
+                <div class="role-card">
+                    <h3>Пользователь</h3>
+                    <p>Может отслеживать маршруты своих автомобилей</p>
+                </div>
+                <div class="role-card">
+                    <h3>Оператор</h3>
+                    <p>Может отслеживать все маршруты для выявления аномалий поведения</p>
+                </div>
+                <div class="role-card">
+                    <h3>Аудит</h3>
+                    <p>Может отслеживать логи поисков операторов и пользователей</p>
+                </div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Use-case diagram</h2>
+            <div class="image-container">
+                <img src="./images/use_case.png" alt="use-case">
+                <div class="image-caption">Диаграмма вариантов использования системы</div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>ER diagram</h2>
+            <div class="image-container">
+                <img src="./images/er.jpg" alt="er">
+                <div class="image-caption">ER-диаграмма базы данных</div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Пользовательские сценарии</h2>
+            <ul>
+                <li><strong>Пользователь:</strong> Авторизируется, регистрируется, следит за маршрутами <u>своих</u> автомобилей;</li>
+                <li><strong>Оператор:</strong> Авторизируется, следит за маршрутами всех автомобилей;</li>
+                <li><strong>Аудит:</strong> Авторизируется, просматривает логи отслеживания маршрутов операторами и пользователями.</li>
+            </ul>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>BPMN</h2>
+            <div class="image-container">
+                <img src="./images/bpmn.jpg" alt="bpmn">
+                <div class="image-caption">BPMN-диаграмма бизнес-процессов</div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Технологический стек</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h3>Backend</h3>
+                    <ul>
+                        <li><strong>Язык программирования:</strong> Rust</li>
+                        <li><strong>Фреймворк:</strong> Axum</li>
+                        <li><strong>СУБД:</strong> PostgreSQL, Redis</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>Frontend</h3>
+                    <ul>
+                        <li><strong>Mobile:</strong> Swift</li>
+                        <li><strong>Web:</strong> HTML + CSS + ReactJS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Верхнеуровневое разбиение на компоненты</h2>
+            <div class="image-container">
+                <img src="./images/components.png" alt="comps">
+                <div class="image-caption">Архитектура компонентов системы</div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="card">
+            <h2>Диаграммы классов</h2>
+            <div class="image-container">
+                <img src="./images/uml.png" alt="uml">
+                <div class="image-caption">UML-диаграмма классов системы</div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <p>AutoTracker &copy; 2025</p>
+        </div>
+    </footer>
+</body>
+</html>

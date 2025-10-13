@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #161616;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #acacac, #1a1a1a);
+            border-radius: 2px;
+        }
+        
+        .tree {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #474747;
+            margin-left: 10px;
+        }
+        
+        .tree-item {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        .tree-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .tree-branch {
+            margin-right: 10px;
+            color: #a0a0a0;
+            font-weight: bold;
+        }
+        
+        a {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        a:hover {
+            color: #e74c3c;
+            background-color: #f9f9f9;
+        }
+        
+        .description {
+            color: #a0a0a0;
+            margin-left: 10px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tree {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Менеджмент страниц</h1>
+        
+        <div class="tree">
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/">/</a>
+                <span class="description">- Приветственная страница</span>
+            </div>
+            
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/api/v1">/api/v1</a>
+                <span class="description">- Swagger API v1</span>
+            </div>
+            
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/api/v2">/api/v2</a>
+                <span class="description">- Swagger API v2</span>
+            </div>
+            
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/legacy">/legacy</a>
+                <span class="description">- Legacy-интерфейс</span>
+            </div>
+
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/documentation">/documentation</a>
+                <span class="description">- Документация</span>
+            </div>
+            
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/reserved">/reserved</a>
+                <span class="description">- Зарезервированный путь</span>
+            </div>
+
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/managment">/managment</a>
+                <span class="description">- Менеджмент страниц</span>
+            </div>
+
+            <div class="tree-item">
+                <span class="tree-branch">├──</span>
+                <a href="/admin">/admin</a>
+                <span class="description">- Администрирование Базы Данных</span>
+            </div>
+
+            <div class="tree-item">
+                <span class="tree-branch">└──</span>
+                <a href="/status">/status</a>
+                <span class="description">- Статус сервера</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

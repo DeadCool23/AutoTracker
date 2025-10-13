@@ -74,6 +74,20 @@ services:
       - redis
     networks:
       - db
+  
+  autotracker-nginx:
+    container_name: autotracker-nginx
+    image: nginx:alpine
+    restart: always
+    depends_on:
+      - autotracker-api
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./../../AutoTracker:/AutoTracker
+    networks:
+      - db
 
 volumes:
   redis_data:

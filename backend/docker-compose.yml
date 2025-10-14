@@ -41,7 +41,6 @@ services:
       - postgres
     volumes:
       - ./docker/data/pgadmin/servers.json:/pgadmin4/servers.json
-      - ./docker/data/pgadmin/.pgpass:/pgadmin4/.pgpass
     networks:
       - db
   

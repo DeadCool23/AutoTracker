@@ -82,6 +82,10 @@ run:
 	@$(MAKE) $(BUILD)
 	RUST_LOG=$(LOG_LEVEL) ./build/$(BUILD)/api
 
+LOG_LEVEL := info
+fast-run:
+	@cd ./src && RUST_LOG=$(LOG_LEVEL) $(CC) run -p $(API)
+
 $(RELEASE_DIR):
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(RELEASE_DIR)

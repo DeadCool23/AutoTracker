@@ -1,11 +1,29 @@
 use ansi_term::Colour;
 use chrono_tz::Europe::Moscow;
 use env_logger::Builder;
+use std::collections::HashMap;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-pub fn init(log_filename: &String, is_in_stdout: bool) {
+mod loki;
+use loki::LokiLogger;
+
+pub fn init(log_filename: &String, is_in_stdout: bool, loki_url: Option<String>) {
+    let loki_logger = if let Some(l_url) = loki_url {
+        let initial_labels = HashMap::from([
+            ("app".to_string(), "autotracker".to_string()),
+            ("tag".to_string(), cfg::var("logs.loki_app_tag")),
+        ]);
+
+        Some(LokiLogger::new(
+            &format!("{}/loki/api/v1/push", l_url),
+            Some(initial_labels),
+        ))
+    } else {
+        None
+    };
+
     let path = Path::new(log_filename);
 
     if let Some(parent) = path.parent() {
@@ -56,6 +74,8 @@ pub fn init(log_filename: &String, is_in_stdout: bool) {
             if is_in_stdout {
                 writeln!(buf, "{}", log_line)?
             }
+
+            loki_logger.as_ref().map(|l| l.log_record(record));
 
             Ok(())
         })

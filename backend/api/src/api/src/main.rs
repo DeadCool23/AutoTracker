@@ -43,6 +43,7 @@ async fn start_server() {
     logger::init(
         &format!("{}/{}", cfg::var("logs.logs_dir"), cfg::var("logs.api_log")),
         true,
+        get_loki_url(),
     );
 
     let app = router::init();
@@ -61,4 +62,16 @@ async fn start_server() {
     axum::serve(listener, app)
         .await
         .unwrap_or_else(|e| panic!("Server error: {}", e));
+}
+
+fn get_loki_url() -> Option<String> {
+    if let Ok(is_loki) = cfg::var("logs.is_loki_log").parse::<u8>() {
+        if is_loki == 1 {
+            Some(cfg::var("logs.loki_url"))
+        } else {
+            None
+        }
+    } else {
+        None
+    }
 }

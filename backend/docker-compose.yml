@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # DB ============================================================================
   redis:
     image: redis:latest
     container_name: redis
@@ -9,23 +10,68 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - db
+      - autotracker-net
 
   postgres:
-    image: postgres:latest
+    image: bitnami/postgresql:latest
     container_name: postgres
     restart: always
 
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRESQL_USERNAME: ${POSTGRES_USER}
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRES_DB}
+      
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_REPLICATION_USER: repl_user
+      POSTGRESQL_REPLICATION_PASSWORD: repl_pwd
+      
+      POSTGRESQL_PGCTLTIMEOUT: 600
+      ALLOW_EMPTY_ROOT_PASSWORD: yes
     ports:
       - "5432:5432"
     volumes:
-      - ${PROJECT_ROOT}/db/data:/data
+      - postgres_primary_data:/bitnami/postgresql
+      - ./db/data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ${POSTGRES_DB} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
-      - db
+      - autotracker-net
+  
+  postgres-replica:
+    image: bitnami/postgresql:latest
+    container_name: postgres-replica
+    environment:
+      POSTGRESQL_USERNAME: ${POSTGRES_USER}
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRES_DB}
+
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_REPLICATION_USER: repl_user
+      POSTGRESQL_REPLICATION_PASSWORD: repl_pwd
+      
+      POSTGRESQL_MASTER_HOST: postgres
+      POSTGRESQL_MASTER_PORT_NUMBER: 5432
+      
+      POSTGRESQL_PGCTLTIMEOUT: 600
+      ALLOW_EMPTY_ROOT_PASSWORD: yes
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - postgres_replica_data:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ${POSTGRES_DB} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - autotracker-net
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -38,11 +84,12 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-1234}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./docker/data/pgadmin/servers.json:/pgadmin4/servers.json
     networks:
-      - db
+      - autotracker-net
   
   clickhouse:
     image: clickhouse/clickhouse-server:latest
@@ -61,8 +108,9 @@ services:
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     networks:
-      - db
+      - autotracker-net
   
+  # Testing ============================================================================
   test-container:
     build:
       context: .
@@ -71,6 +119,7 @@ services:
     volumes:
       - "./allure-report:/app/api/allure-report"
   
+  # API ============================================================================
   autotracker-api:
     build:
       context: .
@@ -78,9 +127,11 @@ services:
     container_name: autotracker-api
     restart: always
     environment:
-      - POSTGRES_ADDRESS=postgres
-      - CLICKHOUSE_ADDRESS=clickhouse
-      - REDIS_ADDRESS=redis
+      - POSTGRES_HOST=postgres
+      - CLICKHOUSE_HOST=clickhouse
+      - REDIS_HOST=redis
+      - LOKI_HOST=loki
+      - LOKI_APP_TAG=main
     ports:
       - "9090:9887"
     volumes:
@@ -89,8 +140,116 @@ services:
       - postgres
       - clickhouse
       - redis
+      - loki
     networks:
-      - db
+      - autotracker-net
+
+  autotracker-api-copy1:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: autotracker-api-copy1
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres-replica
+      - CLICKHOUSE_HOST=clickhouse
+      - REDIS_HOST=redis
+      - LOKI_HOST=loki
+      - LOKI_APP_TAG=copy1
+    ports:
+      - "9191:9887"
+    volumes:
+      - "./logs_c1:/app/logs"
+    depends_on:
+      - postgres-replica
+      - clickhouse
+      - redis
+      - loki
+    networks:
+      - autotracker-net
+  
+  autotracker-api-copy2:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: autotracker-api-copy2
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres-replica
+      - CLICKHOUSE_HOST=clickhouse
+      - REDIS_HOST=redis
+      - LOKI_HOST=loki
+      - LOKI_APP_TAG=copy2
+    ports:
+      - "9292:9887"
+    volumes:
+      - "./logs_c2:/app/logs"
+    depends_on:
+      - postgres-replica
+      - clickhouse
+      - redis
+      - loki
+    networks:
+      - autotracker-net
+  
+  autotracker-api-mirror:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: autotracker-api-mirror
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres
+      - CLICKHOUSE_HOST=clickhouse
+      - REDIS_HOST=redis
+      - LOKI_HOST=loki
+      - LOKI_APP_TAG=mirror
+    ports:
+      - "9797:9887"
+    volumes:
+      - "./logs_mirror:/app/logs"
+    depends_on:
+      - postgres
+      - clickhouse
+      - redis
+      - loki
+    networks:
+      - autotracker-net
+  
+  # Utils ============================================================================
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./docker/data/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+    networks:
+      - autotracker-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_ROOT_URL=http://localhost:3000/monitoring
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    depends_on:
+      - loki
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - autotracker-net
   
   autotracker-nginx:
     container_name: autotracker-nginx
@@ -98,6 +257,10 @@ services:
     restart: always
     depends_on:
       - autotracker-api
+      - autotracker-api-copy1
+      - autotracker-api-copy2
+      - autotracker-api-mirror
+      - grafana
       - pgadmin
     ports:
       - "8181:8181"
@@ -105,13 +268,15 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./../../AutoTracker:/AutoTracker
     networks:
-      - db
+      - autotracker-net
 
 volumes:
   redis_data:
-  postgres_data:
+  postgres_primary_data:
+  postgres_replica_data:
   clickhouse_data:
+  grafana-storage:
 
 networks:
-  db:
+  autotracker-net:
     driver: bridge

@@ -62,6 +62,7 @@ async fn main() {
             cfg::var("logs.snap_insert_mes_log")
         ),
         false,
+        None,
     );
 
     let (dir_path, insert_paths) = build_paths();

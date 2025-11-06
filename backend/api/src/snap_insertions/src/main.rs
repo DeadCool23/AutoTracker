@@ -16,6 +16,7 @@ async fn main() {
             cfg::var("logs.camera_inserts_log")
         ),
         true,
+        None,
     );
 
     let mut handles = vec![];

@@ -100,7 +100,7 @@ jobs:
         for script in tables.sql constraints.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-            docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+             PGPASSWORD=$POSTGRES_PASSWORD docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
           else
             echo "Warning: $script not found"
           fi

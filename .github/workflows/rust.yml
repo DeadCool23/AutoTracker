@@ -90,12 +90,6 @@ jobs:
     - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
       run: |
-        echo "Checking PostgreSQL container status..."
-        docker ps
-        
-        echo "PostgreSQL logs:"
-        docker logs postgres
-        
         POSTGRES_USER=$(grep '^POSTGRES_USER=' ../../../.env | cut -d '=' -f2)
         POSTGRES_PASSWORD=$(grep '^POSTGRES_PASSWORD=' ../../../.env | cut -d '=' -f2)
         POSTGRES_DB=$(grep '^POSTGRES_DB=' ../../../.env | cut -d '=' -f2)
@@ -103,16 +97,11 @@ jobs:
         echo "POSTGRES_USER: $POSTGRES_USER"
         echo "POSTGRES_DB: $POSTGRES_DB"
         
-        echo "Testing connection without password..."
-        docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 1;" || echo "Connection failed"
-        
-        echo "Testing connection with PGPASSWORD..."
-        PGPASSWORD=$POSTGRES_PASSWORD docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 1;" || echo "Connection with password failed"
-        
         for script in tables.sql constraints.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-             PGPASSWORD=$POSTGRES_PASSWORD docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+            # Для Bitnami PostgreSQL используем socket и передаем пароль через env
+            docker exec -i postgres bash -c "PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -d $POSTGRES_DB -f -" < "$script"
           else
             echo "Warning: $script not found"
           fi

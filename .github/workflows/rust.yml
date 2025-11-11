@@ -100,7 +100,8 @@ jobs:
         for script in tables.sql constraints.sql procedure.sql functions.sql scopy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-            docker exec -i postgres psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
+            # Для Bitnami PostgreSQL используем socket и передаем пароль через env
+            docker exec -i postgres bash -c "PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -d $POSTGRES_DB -f -" < "$script"
           else
             echo "Warning: $script not found"
           fi

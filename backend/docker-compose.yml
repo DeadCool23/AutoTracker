@@ -12,6 +12,28 @@ services:
     networks:
       - autotracker-net
 
+  postgres-main:
+    image: postgres:latest
+    container_name: postgres-main
+    restart: always
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ${POSTGRES_DB} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - autotracker-net
+
   postgres:
     image: bitnami/postgresql:latest
     container_name: postgres
@@ -29,7 +51,7 @@ services:
       POSTGRESQL_PGCTLTIMEOUT: 600
       ALLOW_EMPTY_ROOT_PASSWORD: yes
     ports:
-      - "5432:5432"
+      - "5445:5432"
     volumes:
       - postgres_primary_data:/bitnami/postgresql
       - ./db/data:/data

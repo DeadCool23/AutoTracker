@@ -73,19 +73,19 @@ jobs:
     - name: Start Docker containers
       working-directory: ./backend
       run: |
-        docker compose up -d redis postgres
+        docker compose up -d redis postgres-main
 
     - name: Wait for PostgreSQL to be ready
       run: |
         for i in {1..30}; do
-          if docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; then
+          if docker exec postgres-main pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; then
             echo "PostgreSQL is ready!"
             break
           fi
           echo "Waiting for PostgreSQL... attempt $i"
           sleep 2
         done
-        docker exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+        docker exec postgres-main pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
 
     - name: Postgres data preparing
       working-directory: ./backend/db/sql_scripts/postgres
@@ -97,10 +97,10 @@ jobs:
         echo "POSTGRES_USER: $POSTGRES_USER"
         echo "POSTGRES_DB: $POSTGRES_DB"
         
-        for script in tables.sql constraints.sql procedure.sql functions.sql scopy.sql; do
+        for script in tables.sql constraints.sql procedure.sql functions.sql copy.sql; do
           if [ -f "$script" ]; then
             echo "Executing $script"
-            docker exec -i postgres bash -c "PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -d $POSTGRES_DB -f -" < "$script"
+            docker exec -i postgres-main psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB < "$script"
           else
             echo "Warning: $script not found"
           fi

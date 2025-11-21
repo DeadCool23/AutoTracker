@@ -87,3 +87,9 @@
 ![uml](./static/images/uml.png)
 
 ---
+
+## Макеты
+
+<a href="https://www.figma.com/file/p48i82Wx26pmhdOzRtycuU/iStocks?type=design&node-id=0%3A1&mode=design&t=ArlKwUKHRwPIXnZA-1">
+    <img src="https://img.shields.io/static/v1?message=Figma&logo=figma&label=&color=2e2e2e&logoColor=c8c8c8&labelColor=252525&style=for-the-badge" height="40" alt="figma_link"  />
+</a>

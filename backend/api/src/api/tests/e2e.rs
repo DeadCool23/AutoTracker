@@ -1,5 +1,4 @@
 mod end_to_end_tests {
-    use std::env;
     use api::handlers::response_status_code::ResponseStatusCode;
     use api::handlers::v1::auth_services::auth_service::{AuthRequest, AuthResponse};
     use api::handlers::v1::route_get_service::{RouteRequest, RouteResponse};
@@ -13,6 +12,7 @@ mod end_to_end_tests {
         Router,
     };
     use serde_json;
+    use std::env;
     use tower::util::ServiceExt;
 
     #[tokio::test]
@@ -20,8 +20,7 @@ mod end_to_end_tests {
         let app: Router = router::init();
         // ==== AUTH ====
 
-        let pswd = env::var("TEST_PASSWORD")
-            .expect("TEST_PASSWORD environment variable not set");
+        let pswd = env::var("TEST_PASSWORD").expect("TEST_PASSWORD environment variable not set");
         let request = AuthRequest {
             email: "uewmleii@icloud.com".to_string(),
             pswd: pswd,

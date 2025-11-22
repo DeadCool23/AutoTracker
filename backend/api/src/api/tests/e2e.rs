@@ -1,4 +1,5 @@
 mod end_to_end_tests {
+    use std::env;
     use api::handlers::response_status_code::ResponseStatusCode;
     use api::handlers::v1::auth_services::auth_service::{AuthRequest, AuthResponse};
     use api::handlers::v1::route_get_service::{RouteRequest, RouteResponse};
@@ -18,9 +19,12 @@ mod end_to_end_tests {
     async fn test_get_route_endpoint() {
         let app: Router = router::init();
         // ==== AUTH ====
+
+        let pswd = env::var("TEST_PASSWORD")
+            .expect("TEST_PASSWORD environment variable not set");
         let request = AuthRequest {
             email: "uewmleii@icloud.com".to_string(),
-            pswd: "Krd!G0RW&".to_string(),
+            pswd: pswd,
         };
 
         let request = Request::builder()

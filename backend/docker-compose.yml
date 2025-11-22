@@ -137,6 +137,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/test.Dockerfile
+    environment:
+      - TEST_PASSWORD=Krd!G0RW&
     container_name: test-container
     volumes:
       - "./allure-report:/app/api/allure-report"

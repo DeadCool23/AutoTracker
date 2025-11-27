@@ -34,7 +34,7 @@ services:
     networks:
       - autotracker-net
 
-  postgres:
+  postgres-mater:
     image: bitnami/postgresql:latest
     container_name: postgres
     restart: always
@@ -67,6 +67,7 @@ services:
   postgres-replica:
     image: bitnami/postgresql:latest
     container_name: postgres-replica
+    restart: always
     environment:
       POSTGRESQL_USERNAME: ${POSTGRES_USER}
       POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
@@ -151,7 +152,7 @@ services:
     container_name: autotracker-api
     restart: always
     environment:
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=postgres-master
       - CLICKHOUSE_HOST=clickhouse
       - REDIS_HOST=redis
       - LOKI_HOST=loki
@@ -161,7 +162,7 @@ services:
     volumes:
       - "./logs:/app/logs"
     depends_on:
-      - postgres
+      - postgres-master
       - clickhouse
       - redis
       - loki
@@ -223,7 +224,7 @@ services:
     container_name: autotracker-api-mirror
     restart: always
     environment:
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=postgres-replica
       - CLICKHOUSE_HOST=clickhouse
       - REDIS_HOST=redis
       - LOKI_HOST=loki
@@ -233,7 +234,7 @@ services:
     volumes:
       - "./logs_mirror:/app/logs"
     depends_on:
-      - postgres
+      - postgres-replica
       - clickhouse
       - redis
       - loki

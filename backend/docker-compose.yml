@@ -34,7 +34,7 @@ services:
     networks:
       - autotracker-net
 
-  postgres-mater:
+  postgres-master:
     image: bitnami/postgresql:latest
     container_name: postgres
     restart: always
@@ -83,7 +83,7 @@ services:
       POSTGRESQL_PGCTLTIMEOUT: 600
       ALLOW_EMPTY_ROOT_PASSWORD: yes
     depends_on:
-      postgres:
+      postgres-master:
         condition: service_healthy
     volumes:
       - postgres_replica_data:/bitnami/postgresql
@@ -107,7 +107,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-1234}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     depends_on:
-      postgres:
+      postgres-master:
         condition: service_healthy
     volumes:
       - ./docker/data/pgadmin/servers.json:/pgadmin4/servers.json
